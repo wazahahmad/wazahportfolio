@@ -27,7 +27,7 @@ const Hero = () => {
       </div>
 
       <ComputersCanvas />
-
+<img src="/assets/OIG2.2H9C923dUgl.png" alt="HTML tutorial" style="width:42px;height:42px;">
       <div className='absolute xs:bottom-10 bottom-32 w-full flex justify-center items-center'>
         <a href='#about'>
           <div className='w-[35px] h-[64px] rounded-3xl border-4 border-secondary flex justify-center items-start p-2'>
