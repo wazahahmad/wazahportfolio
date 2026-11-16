@@ -1,12 +1,20 @@
 import "./globals.css";
-
 export const metadata = {
-  title: "Wazah Ahmad — Web Developer",
-  description: "Wazah Ahmad is a web developer building thoughtful, modern digital experiences with React, WordPress, and the web.",
+  title: "Wazah Ahmad — Senior Web Developer",
+  description:
+    "Senior web developer in Gujranwala, Pakistan. 6+ years building WordPress, PHP, Laravel websites and practical AI automations.",
   metadataBase: new URL("https://wazahahmad.vercel.app"),
-  openGraph: { title: "Wazah Ahmad — Web Developer", description: "Thoughtful web experiences, made with care.", url: "https://wazahahmad.vercel.app", siteName: "Wazah Ahmad", type: "website" },
+  openGraph: {
+    title: "Wazah Ahmad — Senior Web Developer",
+    description: "Websites, commerce, and automations built with care.",
+    url: "https://wazahahmad.vercel.app",
+    type: "website",
+  },
 };
-
 export default function RootLayout({ children }) {
-  return <html lang="en"><body>{children}</body></html>;
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
 }

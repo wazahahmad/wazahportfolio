@@ -1,65 +1,278 @@
 "use client";
-
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, RoundedBox } from "@react-three/drei";
-import { useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { RoundedBox, useTexture } from "@react-three/drei";
+import { useReducedMotion } from "framer-motion";
 import * as THREE from "three";
-
-function makeBadgeTexture() {
-  const canvas = document.createElement("canvas");
-  canvas.width = 768;
-  canvas.height = 1024;
-  const ctx = canvas.getContext("2d");
-  ctx.fillStyle = "#e9e4d8"; ctx.fillRect(0, 0, 768, 1024);
-  ctx.fillStyle = "#122449"; ctx.fillRect(0, 0, 768, 178);
-  ctx.fillStyle = "#75a2ff"; ctx.font = "600 28px Arial"; ctx.letterSpacing = "7px"; ctx.fillText("W / A     DIGITAL STUDIO", 56, 72);
-  ctx.fillStyle = "#f6f3eb"; ctx.font = "700 76px Arial"; ctx.fillText("PORTFOLIO", 54, 144);
-  ctx.strokeStyle = "rgba(18,36,73,.08)"; ctx.lineWidth = 2;
-  for (let x = 0; x < 768; x += 42) { ctx.beginPath(); ctx.moveTo(x, 178); ctx.lineTo(x, 1024); ctx.stroke(); }
-  for (let y = 178; y < 1024; y += 42) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(768, y); ctx.stroke(); }
-  const cx = 384; const cy = 425;
-  const halo = ctx.createRadialGradient(cx, cy, 10, cx, cy, 235); halo.addColorStop(0, "#d4e1fa"); halo.addColorStop(1, "#e9e4d8"); ctx.fillStyle = halo; ctx.fillRect(68, 196, 632, 450);
-  ctx.strokeStyle = "#244a8c"; ctx.lineWidth = 3;
-  [80, 132, 184].forEach((radius, i) => { ctx.beginPath(); ctx.ellipse(cx, cy, radius * 1.23, radius * 0.56, -0.35 + i * 0.2, 0, Math.PI * 2); ctx.stroke(); });
-  ctx.fillStyle = "#3974d5"; ctx.beginPath(); ctx.arc(cx, cy, 38, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = "#f6f3eb"; ctx.font = "700 30px Arial"; ctx.textAlign = "center"; ctx.fillText("BUILDING FOR THE WEB", cx, 624); ctx.textAlign = "left";
-  ctx.fillStyle = "#122449"; ctx.font = "700 60px Arial"; ctx.fillText("WAZAH", 56, 760); ctx.fillText("AHMAD", 56, 828);
-  ctx.fillStyle = "#3974d5"; ctx.font = "600 26px Arial"; ctx.fillText("WEB DEVELOPER  /  LAHORE, PK", 60, 882);
-  ctx.fillStyle = "#5b6474"; ctx.font = "24px Arial"; ctx.fillText("REACT  ·  WORDPRESS  ·  THREE.JS", 60, 940);
-  const texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; return texture;
+function faceTexture(photo, qr, back) {
+  const c = document.createElement("canvas");
+  c.width = 768;
+  c.height = 1080;
+  const x = c.getContext("2d");
+  x.fillStyle = "#edf1f5";
+  x.fillRect(0, 0, 768, 1080);
+  x.fillStyle = "#102044";
+  x.fillRect(0, 0, 768, 155);
+  x.fillStyle = "#85b9ff";
+  x.font = "600 21px Arial";
+  x.fillText("WAZAH / DIGITAL EXPERIENCES", 50, 55);
+  x.fillStyle = "#ffffff";
+  x.font = "bold 48px Arial";
+  x.fillText(back ? "LET’S CONNECT" : "DEVELOPER", 50, 116);
+  if (back) {
+    x.fillStyle = "#ffffff";
+    x.fillRect(94, 235, 580, 580);
+    x.imageSmoothingEnabled = false;
+    x.drawImage(qr.image, 114, 255, 540, 540);
+    x.imageSmoothingEnabled = true;
+    x.fillStyle = "#102044";
+    x.textAlign = "center";
+    x.font = "bold 40px Arial";
+    x.fillText("Wazah Ahmad", 384, 900);
+    x.font = "24px Arial";
+    x.fillText("linkedin.com/in/wazahahmad", 384, 950);
+    x.font = "20px Arial";
+    x.fillText("SCAN TO CONNECT", 384, 1015);
+  } else {
+    const im = photo.image;
+    const scale = Math.min(670 / im.width, 640 / im.height);
+    x.drawImage(
+      im,
+      (768 - im.width * scale) / 2,
+      170,
+      im.width * scale,
+      im.height * scale,
+    );
+    x.fillStyle = "#102044";
+    x.fillRect(0, 805, 768, 275);
+    x.fillStyle = "#fff";
+    x.font = "bold 53px Arial";
+    x.fillText("WAZAH AHMAD", 44, 886);
+    x.fillStyle = "#8ebdff";
+    x.font = "bold 28px Arial";
+    x.fillText("SENIOR DEVELOPER", 46, 941);
+    x.fillStyle = "#becce2";
+    x.font = "20px Arial";
+    x.fillText("WORDPRESS · PHP · AUTOMATION", 46, 995);
+    x.font = "18px Arial";
+    x.fillText("GUJRANWALA, PAKISTAN", 46, 1040);
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 4;
+  return t;
 }
-
-function Badge() {
-  const group = useRef();
-  const [hovered, setHovered] = useState(false);
-  const texture = useMemo(() => makeBadgeTexture(), []);
-  const strap = useMemo(() => {
-    const points = [new THREE.Vector3(-0.2, 2.7, 0), new THREE.Vector3(-0.28, 2.2, 0), new THREE.Vector3(0.24, 1.72, 0), new THREE.Vector3(0.18, 1.2, 0)];
-    return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points), 48, 0.075, 10, false);
+function Badge({ flipped, setFlipped, reduced }) {
+  const group = useRef(),
+    ribbon = useRef(),
+    drag = useRef(null),
+    pos = useRef(new THREE.Vector3(0, -0.15, 0)),
+    velocity = useRef(new THREE.Vector3()),
+    { camera, invalidate } = useThree();
+  const [photo, qr] = useTexture([
+    "/images/portrait.webp",
+    "/images/linkedin-qr.gif",
+  ]);
+  const faces = useMemo(
+    () => [faceTexture(photo, qr, false), faceTexture(photo, qr, true)],
+    [photo, qr],
+  );
+  useEffect(() => () => faces.forEach((t) => t.dispose()), [faces]);
+  const strip = useMemo(() => {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute(
+      "position",
+      new THREE.BufferAttribute(new Float32Array(33 * 2 * 3), 3),
+    );
+    const idx = [];
+    for (let i = 0; i < 32; i++) {
+      const k = i * 2;
+      idx.push(k, k + 1, k + 2, k + 1, k + 3, k + 2);
+    }
+    g.setIndex(idx);
+    return g;
   }, []);
-  useFrame((state, delta) => {
-    if (!group.current) return;
-    const targetX = -state.pointer.y * 0.32 + Math.sin(state.clock.elapsedTime * 0.7) * 0.035;
-    const targetY = state.pointer.x * 0.45 + Math.sin(state.clock.elapsedTime * 0.55) * 0.06;
-    group.current.rotation.x = THREE.MathUtils.damp(group.current.rotation.x, targetX, 5, delta);
-    group.current.rotation.y = THREE.MathUtils.damp(group.current.rotation.y, targetY, 5, delta);
-    group.current.position.y = THREE.MathUtils.damp(group.current.position.y, hovered ? 0.12 : Math.sin(state.clock.elapsedTime * 1.1) * 0.045, 3, delta);
+  useEffect(() => () => strip.dispose(), [strip]);
+  const plane = useMemo(
+    () => new THREE.Plane(new THREE.Vector3(0, 0, 1), 0),
+    [],
+  );
+  const temp = useMemo(() => new THREE.Vector3(), []);
+  useFrame((s, dt) => {
+    dt = Math.min(dt, 0.03);
+    const p = pos.current,
+      v = velocity.current;
+    const target = drag.current?.target;
+    if (target) {
+      v.set(0, 0, 0);
+      p.lerp(target, 1 - Math.exp(-18 * dt));
+    } else {
+      const restX = reduced ? 0 : Math.sin(s.clock.elapsedTime * 0.65) * 0.025;
+      v.x += (-p.x + restX) * 17 * dt;
+      v.y += (-0.15 - p.y) * 20 * dt;
+      v.multiplyScalar(Math.exp(-3.1 * dt));
+      p.addScaledVector(v, dt);
+    }
+    if (group.current) {
+      group.current.position.copy(p);
+      group.current.rotation.z = THREE.MathUtils.damp(
+        group.current.rotation.z,
+        -p.x * 0.27,
+        5,
+        dt,
+      );
+      group.current.rotation.x = THREE.MathUtils.damp(
+        group.current.rotation.x,
+        reduced ? 0 : s.pointer.y * 0.06,
+        5,
+        dt,
+      );
+      group.current.rotation.y = THREE.MathUtils.damp(
+        group.current.rotation.y,
+        (flipped ? Math.PI : 0) + (reduced ? 0 : s.pointer.x * 0.12),
+        6,
+        dt,
+      );
+    }
+    const a = strip.attributes.position;
+    for (let i = 0; i <= 32; i++) {
+      const t = i / 32;
+      const x = p.x * t * t;
+      const y = 3.6 + (p.y + 1.32 - 3.6) * t;
+      const z = Math.sin(t * Math.PI) * (0.16 + Math.abs(p.x) * 0.16);
+      a.setXYZ(i * 2, x - 0.075, y, z);
+      a.setXYZ(i * 2 + 1, x + 0.075, y, z);
+    }
+    a.needsUpdate = true;
+    strip.computeVertexNormals();
+    if (
+      !reduced ||
+      drag.current ||
+      Math.abs((group.current?.rotation.y || 0) - (flipped ? Math.PI : 0)) >
+        0.001
+    )
+      invalidate();
   });
+  const release = (e) => {
+    const d = drag.current;
+    if (!d) return;
+    drag.current = null;
+    e.target.releasePointerCapture?.(e.pointerId);
+    if (Math.hypot(e.clientX - d.x, e.clientY - d.y) < 6) setFlipped((f) => !f);
+    else {
+      velocity.current.x = d.target.x * 2;
+      velocity.current.y = d.target.y * 0.7;
+    }
+    invalidate();
+  };
   return (
-    <group ref={group} position={[0, -0.12, 0]} onPointerOver={() => setHovered(true)} onPointerOut={() => setHovered(false)}>
-      <mesh geometry={strap}><meshStandardMaterial color="#111a2c" metalness={0.62} roughness={0.3} /></mesh>
-      <mesh position={[0.18, 1.17, 0.01]} rotation={[0, 0, -0.08]}><torusGeometry args={[0.13, 0.035, 12, 32]} /><meshStandardMaterial color="#c8b78e" metalness={0.82} roughness={0.21} /></mesh>
-      <Float speed={1.3} rotationIntensity={0.04} floatIntensity={0.08}>
-        <group position={[0.1, 0.23, 0]} rotation={[0, 0, -0.035]}>
-          <RoundedBox args={[1.72, 2.28, 0.12]} radius={0.1} smoothness={6}><meshStandardMaterial color="#d3cbb9" metalness={0.2} roughness={0.34} /></RoundedBox>
-          <mesh position={[0, 0, 0.066]}><planeGeometry args={[1.6, 2.14]} /><meshBasicMaterial map={texture} toneMapped={false} /></mesh>
-          <mesh position={[0, 1.02, 0.08]}><circleGeometry args={[0.07, 24]} /><meshStandardMaterial color="#b49f77" metalness={0.8} roughness={0.25} /></mesh>
-        </group>
-      </Float>
-    </group>
+    <>
+      <mesh geometry={strip} ref={ribbon}>
+        <meshStandardMaterial
+          color="#182b55"
+          roughness={0.65}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+      <group
+        ref={group}
+        onPointerDown={(e) => {
+          e.stopPropagation();
+          e.target.setPointerCapture(e.pointerId);
+          drag.current = {
+            x: e.clientX,
+            y: e.clientY,
+            target: pos.current.clone(),
+          };
+          invalidate();
+        }}
+        onPointerMove={(e) => {
+          if (!drag.current) return;
+          e.ray.intersectPlane(plane, temp);
+          drag.current.target.set(
+            THREE.MathUtils.clamp(temp.x, -1.65, 1.65),
+            THREE.MathUtils.clamp(temp.y, -1.4, 0.8),
+            0,
+          );
+          invalidate();
+        }}
+        onPointerUp={release}
+        onPointerCancel={() => {
+          drag.current = null;
+          invalidate();
+        }}
+      >
+        <mesh position={[0, 1.3, 0]}>
+          <torusGeometry args={[0.13, 0.035, 12, 32]} />
+          <meshStandardMaterial
+            color="#bccde6"
+            metalness={0.9}
+            roughness={0.2}
+          />
+        </mesh>
+        <RoundedBox args={[1.85, 2.6, 0.1]} radius={0.095} smoothness={4}>
+          <meshStandardMaterial
+            color="#afbdd0"
+            metalness={0.4}
+            roughness={0.3}
+          />
+        </RoundedBox>
+        <mesh position={[0, 0, 0.057]}>
+          <planeGeometry args={[1.73, 2.44]} />
+          <meshBasicMaterial map={faces[0]} toneMapped={false} />
+        </mesh>
+        <mesh position={[0, 0, -0.057]} rotation={[0, Math.PI, 0]}>
+          <planeGeometry args={[1.73, 2.44]} />
+          <meshBasicMaterial map={faces[1]} toneMapped={false} />
+        </mesh>
+      </group>
+    </>
   );
 }
-
 export default function LanyardScene() {
-  return <div className="lanyard-scene" aria-label="Interactive 3D portfolio badge. Move your pointer to tilt it."><div className="lanyard-halo" /><Canvas camera={{ position: [0, 0.62, 6.6], fov: 34 }} dpr={[1, 1.6]}><ambientLight intensity={1.35} /><directionalLight position={[3, 5, 4]} intensity={2.6} color="#d9e7ff" /><pointLight position={[-3, 1, 2]} intensity={55} color="#3974d5" /><Badge /></Canvas><span className="scene-hint"><span className="hint-dot" /> move to explore</span></div>;
+  const [flipped, setFlipped] = useState(false),
+    [visible, setVisible] = useState(true);
+  const container = useRef();
+  const reduced = useReducedMotion();
+  useEffect(() => {
+    const obs = new IntersectionObserver(
+      ([e]) => setVisible(e.isIntersecting),
+      { rootMargin: "100px" },
+    );
+    if (container.current) obs.observe(container.current);
+    return () => obs.disconnect();
+  }, []);
+  return (
+    <div
+      className="lanyard-scene"
+      ref={container}
+      aria-label="Interactive portfolio card: drag to swing, click to flip"
+    >
+      <Canvas
+        camera={{ position: [0, 0.6, 7], fov: 37 }}
+        dpr={[1, 1.5]}
+        frameloop={visible ? (reduced ? "demand" : "always") : "never"}
+        gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
+      >
+        <ambientLight intensity={1.7} />
+        <directionalLight position={[3, 5, 5]} intensity={2.8} />
+        <Suspense fallback={null}>
+          <Badge flipped={flipped} setFlipped={setFlipped} reduced={reduced} />
+        </Suspense>
+      </Canvas>
+      <div className="lanyard-controls">
+        <button onClick={() => setFlipped(!flipped)} aria-pressed={flipped}>
+          {flipped ? "↶ Show portrait" : "↻ Flip card to see QR"} · Drag to
+          swing
+        </button>
+        <a
+          href="https://www.linkedin.com/in/wazahahmad/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Connect on LinkedIn ↗
+        </a>
+      </div>
+    </div>
+  );
 }
