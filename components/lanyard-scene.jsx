@@ -370,6 +370,11 @@ function Badge({ flipped, setFlipped, reduced }) {
     }
     nodes[0].copy(rope.anchor);
     nodes[n].copy(rope.end);
+    // Keep a short straight fabric tail seated inside the metal crimp.
+    for (let j = 1; j <= 2; j++) {
+      rope.delta.set(0, j * 0.15, 0).applyQuaternion(group.current.quaternion);
+      nodes[n - j].copy(rope.end).add(rope.delta);
+    }
     const a = strip.attributes.position;
     for (let i = 0; i <= 32; i++) {
       const t = i / 32;
