@@ -106,7 +106,6 @@ export default function PortfolioClient() {
   const [menu, setMenu] = useState(false),
     [active, setActive] = useState("home"),
     [tab, setTab] = useState("Projects"),
-    [portrait, setPortrait] = useState(false),
     [ready, setReady] = useState(false),
     [role, setRole] = useState("Senior Developer");
   const reduced = useReducedMotion();
@@ -303,32 +302,15 @@ export default function PortfolioClient() {
             </a>
           </Reveal>
           <Reveal className="portrait-column">
-            <button
-              className={`portrait ${portrait ? "suited" : ""}`}
-              onClick={() => setPortrait(!portrait)}
-              aria-label="Toggle Iron Man portrait"
-              aria-pressed={portrait}
-            >
-              <div className="portrait-orbit" />
+            <div className="portrait portrait-static">
               <Image
                 className="portrait-normal"
                 src="/images/portrait.webp"
                 alt="Wazah Ahmad"
                 fill
-                sizes="(max-width: 760px) 85vw, 380px"
+                sizes="(max-width:760px) 90vw,740px"
               />
-              <Image
-                className="portrait-iron"
-                src="/images/portrait-iron-3x.webp"
-                alt=""
-                fill
-                sizes="(max-width: 760px) 85vw, 380px"
-              />
-              <span className="portrait-scan" />
-            </button>
-            <small>
-              HOVER OR TAP TO SUIT UP <span>✧</span>
-            </small>
+            </div>
           </Reveal>
           <Reveal className="about-description">
             <span className="eyebrow">CODE. CREATE. REPEAT.</span>
@@ -367,6 +349,7 @@ export default function PortfolioClient() {
               <div className="timeline">
                 {items.map(([mark, name, title, date, description]) => (
                   <article className="timeline-item" key={name}>
+                    <MetalBorder />
                     <div className="timeline-mark">{mark}</div>
                     <div>
                       <h4>{name}</h4>
@@ -397,6 +380,7 @@ export default function PortfolioClient() {
             ],
           ].map(([icon, count, title, description]) => (
             <div key={title}>
+              <MetalBorder />
               <div className="stat-top">
                 <span>
                   <Icon name={icon} size={25} />
@@ -514,68 +498,71 @@ export default function PortfolioClient() {
         <div className="contact-grid">
           <Reveal>
             <div className="contact-card">
-              <h3>
-                Get in touch<span>.</span>
-              </h3>
-              <p>
-                For a project, a collaboration, or a quick hello — I’d love to
-                hear from you.
-              </p>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const d = new FormData(e.currentTarget);
-                  window.location.href = `mailto:wazahahmad4@gmail.com?subject=${encodeURIComponent("Website enquiry from " + d.get("name"))}&body=${encodeURIComponent(d.get("message") + "\n\nFrom: " + d.get("name") + "\nEmail: " + d.get("email"))}`;
-                }}
-              >
-                <label>
-                  Your name
-                  <span className="input-wrap">
-                    <Icon name="user" size={16} />
-                    <input
-                      name="name"
-                      placeholder="What should I call you?"
-                      autoComplete="name"
-                      required
-                      maxLength={100}
-                    />
-                  </span>
-                </label>
-                <label>
-                  Email address
-                  <span className="input-wrap">
-                    <Icon name="mail" size={16} />
-                    <input
-                      name="email"
-                      type="email"
-                      placeholder="you@example.com"
-                      autoComplete="email"
-                      required
-                      maxLength={200}
-                    />
-                  </span>
-                </label>
-                <label>
-                  Message
-                  <span className="input-wrap">
-                    <Icon name="message" size={16} />
-                    <textarea
-                      name="message"
-                      placeholder="Tell me a little about your idea…"
-                      rows={5}
-                      required
-                      maxLength={5000}
-                    />
-                  </span>
-                </label>
-                <button className="button primary" type="submit">
-                  <Icon name="send" size={17} />
-                  Compose email
-                </button>
-                <small className="form-note">
-                  Opens your email app with your message ready to send.
-                </small>
-              </form>
+              <MetalBorder />
+              <div className="contact-form-column">
+                <h3>
+                  Get in touch<span>.</span>
+                </h3>
+                <p>
+                  For a project, a collaboration, or a quick hello — I’d love to
+                  hear from you.
+                </p>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const d = new FormData(e.currentTarget);
+                    window.location.href = `mailto:wazahahmad4@gmail.com?subject=${encodeURIComponent("Website enquiry from " + d.get("name"))}&body=${encodeURIComponent(d.get("message") + "\n\nFrom: " + d.get("name") + "\nEmail: " + d.get("email"))}`;
+                  }}
+                >
+                  <label>
+                    Your name
+                    <span className="input-wrap">
+                      <Icon name="user" size={16} />
+                      <input
+                        name="name"
+                        placeholder="What should I call you?"
+                        autoComplete="name"
+                        required
+                        maxLength={100}
+                      />
+                    </span>
+                  </label>
+                  <label>
+                    Email address
+                    <span className="input-wrap">
+                      <Icon name="mail" size={16} />
+                      <input
+                        name="email"
+                        type="email"
+                        placeholder="you@example.com"
+                        autoComplete="email"
+                        required
+                        maxLength={200}
+                      />
+                    </span>
+                  </label>
+                  <label>
+                    Message
+                    <span className="input-wrap">
+                      <Icon name="message" size={16} />
+                      <textarea
+                        name="message"
+                        placeholder="Tell me a little about your idea…"
+                        rows={5}
+                        required
+                        maxLength={5000}
+                      />
+                    </span>
+                  </label>
+                  <button className="button primary" type="submit">
+                    <Icon name="send" size={17} />
+                    Compose email
+                  </button>
+                  <small className="form-note">
+                    Opens your email app with your message ready to send.
+                  </small>
+                </form>
+              </div>
               <div className="contact-socials">
                 <h4>FIND ME</h4>
                 <Socials cards />

@@ -4,20 +4,23 @@ import { useReducedMotion } from "framer-motion";
 export default function MetalBorder() {
   const host = useRef(null);
   const [Metal, setMetal] = useState(null);
+  const [visible, setVisible] = useState(false);
   const reduced = useReducedMotion();
   useEffect(() => {
     let alive = true;
+    let requested = false;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (!entry.isIntersecting) return;
-        observer.disconnect();
+        setVisible(entry.isIntersecting);
+        if (!entry.isIntersecting || requested) return;
+        requested = true;
         import("@paper-design/shaders-react")
           .then((module) => {
             if (alive) setMetal(() => module.LiquidMetal);
           })
           .catch(() => {});
       },
-      { rootMargin: "160px" },
+      { rootMargin: "80px" },
     );
     if (host.current) observer.observe(host.current);
     return () => {
@@ -27,7 +30,7 @@ export default function MetalBorder() {
   }, []);
   return (
     <div ref={host} className="metal-border" aria-hidden="true">
-      {Metal && (
+      {Metal && visible && (
         <Metal
           width="100%"
           height="100%"
@@ -46,7 +49,7 @@ export default function MetalBorder() {
           offsetY={-0.1}
           speed={reduced ? 0 : 0.6}
           minPixelRatio={1}
-          maxPixelCount={300000}
+          maxPixelCount={180000}
         />
       )}
     </div>

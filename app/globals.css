@@ -2945,3 +2945,159 @@ body {
 .social-cards .social-name {
   color: #eef3ff;
 }
+/* Form and contact links share a clear two-column panel. */
+.contact-grid {
+  max-width: 1000px;
+}
+.contact-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 52px;
+  padding: 40px;
+}
+.contact-form-column {
+  min-width: 0;
+}
+.contact-form-column h3 {
+  font-size: 25.92px;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  margin: 0 0 13px;
+}
+.contact-form-column > p {
+  font-size: 12.67px;
+  line-height: 1.65;
+  margin: 0 0 25px;
+  color: #8f9ab4;
+}
+.contact-card .contact-socials {
+  align-self: center;
+  border-top: 0;
+  border-left: 1px solid #a9c4e422;
+  padding: 15px 0 15px 44px;
+  margin: 0;
+  min-width: 0;
+}
+.contact-card .contact-socials h4 {
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  margin-bottom: 25px;
+}
+.contact-card .direct-email {
+  font-size: 11px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+.contact-card .social-cards a {
+  padding: 17px;
+  min-height: 85px;
+}
+.contact-card .social-cards a > svg:first-child {
+  width: 30px;
+  height: 30px;
+}
+.contact-card .social-cards {
+  gap: 18px;
+}
+@media (max-width: 760px) {
+  .contact-grid {
+    max-width: 500px;
+  }
+  .contact-card {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    padding: 25px;
+  }
+  .contact-card .contact-socials {
+    border-left: 0;
+    border-top: 1px solid #a9c4e422;
+    padding: 25px 0 0;
+  }
+  .contact-form-column > p {
+    font-size: 13px;
+  }
+  .contact-card .contact-socials h4 {
+    margin-bottom: 20px;
+  }
+  .contact-card .social-cards a {
+    min-height: 79px;
+  }
+}
+/* Local reveal: the original portrait stays visible outside the cursor mask. */
+.portrait .portrait-normal,
+.portrait:hover .portrait-normal {
+  opacity: 1;
+}
+.portrait-reveal {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  mask-image: radial-gradient(
+    circle 115px at var(--reveal-x, 50%) var(--reveal-y, 40%),
+    #000 0%,
+    #000 58%,
+    transparent 100%
+  );
+  -webkit-mask-image: radial-gradient(
+    circle 115px at var(--reveal-x, 50%) var(--reveal-y, 40%),
+    #000 0%,
+    #000 58%,
+    transparent 100%
+  );
+}
+.portrait.is-revealing .portrait-reveal {
+  opacity: 1;
+}
+.portrait-reveal .portrait-iron {
+  opacity: 1;
+  filter: none !important;
+}
+.portrait:hover .portrait-scan {
+  animation: none;
+}
+.portrait {
+  cursor: crosshair;
+}
+@media (max-width: 760px) {
+  .portrait-reveal {
+    mask-image: radial-gradient(
+      circle 90px at var(--reveal-x, 50%) var(--reveal-y, 40%),
+      #000 0%,
+      #000 58%,
+      transparent 100%
+    );
+    -webkit-mask-image: radial-gradient(
+      circle 90px at var(--reveal-x, 50%) var(--reveal-y, 40%),
+      #000 0%,
+      #000 58%,
+      transparent 100%
+    );
+  }
+}
+.portrait-static {
+  cursor: default;
+}
+.portrait-static .portrait-normal,
+.portrait-static:hover .portrait-normal {
+  opacity: 1;
+}
+.timeline-item,
+.stats > div,
+.contact-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.timeline-item > .metal-border,
+.stats > div > .metal-border,
+.contact-card > .metal-border {
+  opacity: 0.55;
+  padding: 1.5px;
+}
+.timeline-item:hover > .metal-border,
+.stats > div:hover > .metal-border,
+.contact-card:hover > .metal-border {
+  opacity: 0.85;
+}

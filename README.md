@@ -14,7 +14,7 @@ Run `npm install`, then `npm run dev`. Production: `npm run build` and `npm run 
 - Optimized transparent portrait: `public/images/portrait.webp` (generated cutout, WebP with alpha).
 - Original supplied LinkedIn QR: `public/images/linkedin-qr.gif`.
 - Contact form opens a mail composer; it does not silently send or store messages. A hosted form provider can be connected later.
-- About hover uses the user-supplied Iron Man image (`public/images/portrait-iron-3x.webp`). The supplied removebg-preview PNG is encoded losslessly with transparency. Hover and tap crossfade between the two portraits.
+- About uses the static Wazah portrait. Iron Man hover/reveal has been removed at the user’s request; the approved 3× assets remain saved for later.
 
 ## Image provenance
 
@@ -34,3 +34,5 @@ The badge now uses public/images/card-portrait.webp, encoded losslessly from the
 The ribbon now uses a 17-node constrained simulation. Its bottom node is pinned to the transformed top of the badge clip each frame; printed Wazah Ahmad lettering repeats along the fabric. Project borders use Paper LiquidMetal with the reference parameters; technology tiles use the reference conic edge sweep and pointer direction. Both effects respect reduced motion; shader rendering pauses offscreen.
 
 At the user’s explicit request, the supplied transparent Iron Man cutout was enlarged 3× with Lanczos3 interpolation to 1128 × 1992 after the AI upscale service rejected the request. No generative detail was added. The PNG master is public/images/iron-man-3x.png; the site uses a lossless WebP version.
+
+The contact panel uses two columns on desktop (form left, contact links right) and stacks on phones. Metallic shader borders now cover education, experience, statistics, projects, and contact panels. Shader components are unmounted outside the viewport to release their WebGL contexts.
