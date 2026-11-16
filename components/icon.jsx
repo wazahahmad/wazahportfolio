@@ -1,5 +1,20 @@
 export default function Icon({ name, size = 20, ...props }) {
   const paths = {
+    user: (
+      <>
+        <circle cx="12" cy="8" r="4" />
+        <path d="M5 21v-2a7 7 0 0 1 14 0v2" />
+      </>
+    ),
+    mail: (
+      <>
+        <rect x="3" y="4" width="18" height="16" rx="2" />
+        <path d="m3 6 9 7 9-7" />
+      </>
+    ),
+    message: (
+      <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    ),
     arrow: (
       <>
         <path d="M5 12h14M12 5l7 7-7 7" />

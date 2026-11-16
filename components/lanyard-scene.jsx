@@ -157,24 +157,30 @@ function faceTexture(photo, qr, back) {
 }
 function strapTexture() {
   const c = document.createElement("canvas");
-  c.width = 160;
-  c.height = 1024;
+  c.width = 256;
+  c.height = 2048;
   const x = c.getContext("2d");
-  x.fillStyle = "#16191b";
-  x.fillRect(0, 0, 160, 1024);
-  for (let i = 0; i < 160; i += 4) {
-    x.fillStyle = i % 8 ? "#ffffff07" : "#0004";
-    x.fillRect(i, 0, 1, 1024);
+  x.fillStyle = "#181b1e";
+  x.fillRect(0, 0, 256, 2048);
+  for (let i = 0; i < 256; i += 3) {
+    x.fillStyle = i % 6 ? "#ffffff09" : "#0005";
+    x.fillRect(i, 0, 1, 2048);
   }
-  x.save();
-  x.translate(110, 180);
-  x.rotate(Math.PI / 2);
-  x.fillStyle = "#efefea";
-  x.font = "bold 44px Arial";
-  x.fillText("ⓦ Wazah Ahmad", 0, 0);
-  x.restore();
+  x.strokeStyle = "#a4a8af45";
+  x.lineWidth = 5;
+  x.strokeRect(10, 0, 236, 2048);
+  for (const y of [35, 735, 1435]) {
+    x.save();
+    x.translate(178, y);
+    x.rotate(Math.PI / 2);
+    x.fillStyle = "#f0f0ec";
+    x.font = "bold 84px Arial";
+    x.fillText("ⓦ Wazah Ahmad", 0, 0, 650);
+    x.restore();
+  }
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 8;
   return t;
 }
 
@@ -184,7 +190,7 @@ function Badge({ flipped, setFlipped, reduced }) {
     drag = useRef(null),
     pos = useRef(new THREE.Vector3(0, -0.15, 0)),
     velocity = useRef(new THREE.Vector3()),
-    { camera, invalidate } = useThree();
+    { invalidate } = useThree();
   const [photo, qr] = useTexture([
     "/images/card-portrait.webp",
     "/images/linkedin-qr.gif",
@@ -221,6 +227,27 @@ function Badge({ flipped, setFlipped, reduced }) {
     [],
   );
   const temp = useMemo(() => new THREE.Vector3(), []);
+  const rope = useMemo(() => {
+    const count = 17,
+      anchor = new THREE.Vector3(0, 3.8, 0);
+    const nodes = Array.from(
+      { length: count },
+      (_, i) => new THREE.Vector3(0, 3.8 - (i * 2.28) / (count - 1), 0),
+    );
+    return {
+      anchor,
+      nodes,
+      previous: nodes.map((n) => n.clone()),
+      curve: new THREE.CatmullRomCurve3(nodes),
+      end: new THREE.Vector3(),
+      point: new THREE.Vector3(),
+      tangent: new THREE.Vector3(),
+      side: new THREE.Vector3(),
+      delta: new THREE.Vector3(),
+      length: 2.7,
+    };
+  }, []);
+
   useFrame((s, dt) => {
     dt = Math.min(dt, 0.03);
     const p = pos.current,
@@ -257,17 +284,68 @@ function Badge({ flipped, setFlipped, reduced }) {
         dt,
       );
     }
+
+    // Pin the final fabric node to the actual transformed top of the metal clip.
+    rope.end.set(0, 1.67, 0).applyQuaternion(group.current.quaternion).add(p);
+    const nodes = rope.nodes,
+      previous = rope.previous,
+      n = nodes.length - 1;
+    for (let i = 1; i < n; i++) {
+      const node = nodes[i],
+        old = previous[i];
+      rope.delta.subVectors(node, old).multiplyScalar(Math.exp(-4 * dt));
+      old.copy(node);
+      node.add(rope.delta);
+      node.y -= 7 * dt * dt;
+      if (!reduced)
+        node.z +=
+          Math.sin(s.clock.elapsedTime * 0.7 + i * 0.3) * 0.12 * dt * dt;
+    }
+    const segment = rope.length / n;
+    for (let iteration = 0; iteration < 12; iteration++) {
+      nodes[0].copy(rope.anchor);
+      nodes[n].copy(rope.end);
+      for (let i = 0; i < n; i++) {
+        const left = nodes[i],
+          right = nodes[i + 1];
+        rope.delta.subVectors(right, left);
+        const distance = Math.max(rope.delta.length(), 0.0001);
+        rope.delta.multiplyScalar((distance - segment) / distance);
+        if (i === 0) right.sub(rope.delta);
+        else if (i + 1 === n) left.add(rope.delta);
+        else {
+          left.addScaledVector(rope.delta, 0.5);
+          right.addScaledVector(rope.delta, -0.5);
+        }
+      }
+    }
+    nodes[0].copy(rope.anchor);
+    nodes[n].copy(rope.end);
     const a = strip.attributes.position;
     for (let i = 0; i <= 32; i++) {
       const t = i / 32;
-      const x = p.x * t * t;
-      const y = 3.6 + (p.y + 1.32 - 3.6) * t;
-      const z = Math.sin(t * Math.PI) * (0.16 + Math.abs(p.x) * 0.16);
-      a.setXYZ(i * 2, x - 0.11, y, z);
-      a.setXYZ(i * 2 + 1, x + 0.11, y, z);
+      rope.curve.getPoint(t, rope.point);
+      rope.curve.getTangent(t, rope.tangent);
+      rope.side
+        .set(-rope.tangent.y, rope.tangent.x, 0)
+        .normalize()
+        .multiplyScalar(0.115);
+      a.setXYZ(
+        i * 2,
+        rope.point.x - rope.side.x,
+        rope.point.y - rope.side.y,
+        rope.point.z - 0.006,
+      );
+      a.setXYZ(
+        i * 2 + 1,
+        rope.point.x + rope.side.x,
+        rope.point.y + rope.side.y,
+        rope.point.z - 0.006,
+      );
     }
     a.needsUpdate = true;
     strip.computeVertexNormals();
+    strip.computeBoundingSphere();
     if (
       !reduced ||
       drag.current ||
@@ -293,8 +371,8 @@ function Badge({ flipped, setFlipped, reduced }) {
       <mesh geometry={strip} ref={ribbon}>
         <meshStandardMaterial
           map={bandTexture}
-          color="#c7c7c7"
-          roughness={0.65}
+          color="#ffffff"
+          roughness={0.85}
           side={THREE.DoubleSide}
         />
       </mesh>
@@ -318,6 +396,14 @@ function Badge({ flipped, setFlipped, reduced }) {
             THREE.MathUtils.clamp(temp.y, -1.4, 0.8),
             0,
           );
+          temp
+            .copy(drag.current.target)
+            .add(new THREE.Vector3(0, 1.67, 0))
+            .sub(rope.anchor)
+            .clampLength(0, rope.length - 0.03)
+            .add(rope.anchor)
+            .sub(new THREE.Vector3(0, 1.67, 0));
+          drag.current.target.copy(temp);
           invalidate();
         }}
         onPointerUp={release}
@@ -326,11 +412,11 @@ function Badge({ flipped, setFlipped, reduced }) {
           invalidate();
         }}
       >
-        <mesh position={[0, 1.58, 0]}>
-          <boxGeometry args={[0.29, 0.16, 0.09]} />
+        <mesh position={[0, 1.56, 0]}>
+          <boxGeometry args={[0.29, 0.22, 0.09]} />
           <meshStandardMaterial
             color="#aeb6be"
-            metalness={0.9}
+            metalness={0.55}
             roughness={0.25}
           />
         </mesh>

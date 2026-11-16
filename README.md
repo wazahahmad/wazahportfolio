@@ -14,7 +14,7 @@ Run `npm install`, then `npm run dev`. Production: `npm run build` and `npm run 
 - Optimized transparent portrait: `public/images/portrait.webp` (generated cutout, WebP with alpha).
 - Original supplied LinkedIn QR: `public/images/linkedin-qr.gif`.
 - Contact form opens a mail composer; it does not silently send or store messages. A hosted form provider can be connected later.
-- Iron Man image generation was rejected by the image service. The portrait currently uses a glow interaction; no armor asset is included.
+- About hover uses the user-supplied Iron Man image (`public/images/portrait-iron.webp`). The supplied removebg-preview PNG is encoded losslessly with transparency. Hover and tap crossfade between the two portraits.
 
 ## Image provenance
 
@@ -30,3 +30,5 @@ The 3D scene is dynamically loaded, caps rendering resolution, pauses outside th
 
 The layout now uses local Inter, a compact desktop navigation pill, brighter star field, larger collage badge artwork, reference-style metallic panel borders, and outline interface icons. Sound controls and Web Audio logic were removed. The Tech Stack tab uses the same 15 entries and publicly served SVG logos displayed by the reference site. Brand logos retain their respective owners' marks; source metadata is retained in SVG files where supplied.
 The badge now uses public/images/card-portrait.webp, encoded losslessly from the exact supplied exec-0090fd11-e439-40a8-98bf-4733a8274902.png cutout. The original image dimensions and alpha are preserved. Badge framing is applied only in the rendered canvas; the source asset is unchanged.
+
+The ribbon now uses a 17-node constrained simulation. Its bottom node is pinned to the transformed top of the badge clip each frame; printed Wazah Ahmad lettering repeats along the fabric. Project borders use Paper LiquidMetal with the reference parameters; technology tiles use the reference conic edge sweep and pointer direction. Both effects respect reduced motion; shader rendering pauses offscreen.

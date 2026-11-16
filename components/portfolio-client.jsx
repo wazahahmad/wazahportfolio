@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import Icon from "./icon";
+import MetalBorder from "./metal-border";
 import { techStack } from "../lib/tech-stack";
 import { projects } from "../lib/projects";
 const Lanyard = dynamic(() => import("./lanyard-scene"), {
@@ -74,9 +75,9 @@ function Reveal({ children, className = "" }) {
     </motion.div>
   );
 }
-function Socials() {
+function Socials({ cards = false }) {
   return (
-    <div className="social-links">
+    <div className={`social-links${cards ? " social-cards" : ""}`}>
       {socials.map(([name, url]) => (
         <a
           key={name}
@@ -87,7 +88,15 @@ function Socials() {
           rel="noopener noreferrer"
         >
           <Icon name={name === "GitHub" ? "github" : "linkedin"} size={19} />
-          <span className="social-name">{name}</span>
+          <span className="social-name">
+            {name}
+            {cards && (
+              <small>
+                {name === "GitHub" ? "@wazahahmad" : "/in/wazahahmad"}
+              </small>
+            )}
+          </span>
+          {cards && <Icon name="arrow" size={16} />}
         </a>
       ))}
     </div>
@@ -101,6 +110,32 @@ export default function PortfolioClient() {
     [ready, setReady] = useState(false),
     [role, setRole] = useState("Senior Developer");
   const reduced = useReducedMotion();
+  useEffect(() => {
+    const root = document.querySelector(".portfolio-site");
+    if (!root) return;
+    let frame = 0;
+    const move = (e) => {
+      const card = e.target.closest?.(".skill");
+      if (!card) return;
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const r = card.getBoundingClientRect();
+        const dx = e.clientX - r.left - r.width / 2,
+          dy = e.clientY - r.top - r.height / 2;
+        card.style.setProperty(
+          "--cursor-angle",
+          (((Math.atan2(dy, dx) * 180) / Math.PI + 450) % 360) + "deg",
+        );
+        card.style.setProperty("--pointer-x", e.clientX - r.left + "px");
+        card.style.setProperty("--pointer-y", e.clientY - r.top + "px");
+      });
+    };
+    root.addEventListener("pointermove", move, { passive: true });
+    return () => {
+      cancelAnimationFrame(frame);
+      root.removeEventListener("pointermove", move);
+    };
+  }, []);
   useEffect(() => {
     const timer = setTimeout(() => setReady(true), 250);
     const obs = new IntersectionObserver(
@@ -263,14 +298,15 @@ export default function PortfolioClient() {
               building things that work beautifully.
             </p>
             <a className="button secondary" href="#contact">
-              Let’s connect ↗
+              <Icon name="send" size={17} />
+              Contact Me
             </a>
           </Reveal>
           <Reveal className="portrait-column">
             <button
               className={`portrait ${portrait ? "suited" : ""}`}
               onClick={() => setPortrait(!portrait)}
-              aria-label="Toggle portrait glow"
+              aria-label="Toggle Iron Man portrait"
               aria-pressed={portrait}
             >
               <div className="portrait-orbit" />
@@ -283,7 +319,7 @@ export default function PortfolioClient() {
               />
               <Image
                 className="portrait-iron"
-                src="/images/portrait.webp"
+                src="/images/portrait-iron.webp"
                 alt=""
                 fill
                 sizes="(max-width: 760px) 85vw, 380px"
@@ -291,7 +327,7 @@ export default function PortfolioClient() {
               <span className="portrait-scan" />
             </button>
             <small>
-              HOVER OR TAP TO EXPLORE <span>✧</span>
+              HOVER OR TAP TO SUIT UP <span>✧</span>
             </small>
           </Reveal>
           <Reveal className="about-description">
@@ -308,7 +344,8 @@ export default function PortfolioClient() {
               communication and care for the details guide every project.
             </p>
             <a className="text-link" href="#portfolio">
-              Explore my work <span>↗</span>
+              <Icon name="code" size={17} />
+              View Projects <Icon name="arrow" size={17} />
             </a>
           </Reveal>
         </div>
@@ -332,10 +369,10 @@ export default function PortfolioClient() {
                   <article className="timeline-item" key={name}>
                     <div className="timeline-mark">{mark}</div>
                     <div>
-                      <span className="timeline-date">{date}</span>
                       <h4>{name}</h4>
                       <p>{title}</p>
-                      <small>{description}</small>
+                      <span className="timeline-date">{date}</span>
+                      {heading === "Education" && <small>{description}</small>}
                     </div>
                   </article>
                 ))}
@@ -344,23 +381,32 @@ export default function PortfolioClient() {
           ))}
         </div>
         <Reveal className="stats">
-          <div>
-            <strong>
-              6<span>+</span>
-            </strong>
-            <h4>YEARS EXPERIENCE</h4>
-            <p>Agency & freelance</p>
-          </div>
-          <div>
-            <strong>3</strong>
-            <h4>CORE SPECIALTIES</h4>
-            <p>Web · Commerce · Automation</p>
-          </div>
-          <div>
-            <strong>∞</strong>
-            <h4>CURIOSITY</h4>
-            <p>Always learning, always building</p>
-          </div>
+          {[
+            [
+              "briefcase",
+              "6+",
+              "Years Experience",
+              "Agency and freelance development",
+            ],
+            ["code", "3", "Sample Projects", "A preview of the work I build"],
+            [
+              "cpu",
+              "3",
+              "Professional Roles",
+              "Across agencies and independent work",
+            ],
+          ].map(([icon, count, title, description]) => (
+            <div key={title}>
+              <div className="stat-top">
+                <span>
+                  <Icon name={icon} size={25} />
+                </span>
+                <strong>{count}</strong>
+              </div>
+              <h4>{title}</h4>
+              <p>{description}</p>
+            </div>
+          ))}
         </Reveal>
       </section>
       <section id="portfolio" className="shell section">
@@ -405,6 +451,7 @@ export default function PortfolioClient() {
                 {projects.map((p, i) => (
                   <Reveal key={p.slug}>
                     <article className="project-card">
+                      <MetalBorder />
                       <Link
                         href={`/projects/${p.slug}`}
                         className="project-image"
@@ -483,66 +530,59 @@ export default function PortfolioClient() {
               >
                 <label>
                   Your name
-                  <input
-                    name="name"
-                    placeholder="What should I call you?"
-                    autoComplete="name"
-                    required
-                    maxLength={100}
-                  />
+                  <span className="input-wrap">
+                    <Icon name="user" size={16} />
+                    <input
+                      name="name"
+                      placeholder="What should I call you?"
+                      autoComplete="name"
+                      required
+                      maxLength={100}
+                    />
+                  </span>
                 </label>
                 <label>
                   Email address
-                  <input
-                    name="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    autoComplete="email"
-                    required
-                    maxLength={200}
-                  />
+                  <span className="input-wrap">
+                    <Icon name="mail" size={16} />
+                    <input
+                      name="email"
+                      type="email"
+                      placeholder="you@example.com"
+                      autoComplete="email"
+                      required
+                      maxLength={200}
+                    />
+                  </span>
                 </label>
                 <label>
                   Message
-                  <textarea
-                    name="message"
-                    placeholder="Tell me a little about your idea…"
-                    rows={5}
-                    required
-                    maxLength={5000}
-                  />
+                  <span className="input-wrap">
+                    <Icon name="message" size={16} />
+                    <textarea
+                      name="message"
+                      placeholder="Tell me a little about your idea…"
+                      rows={5}
+                      required
+                      maxLength={5000}
+                    />
+                  </span>
                 </label>
                 <button className="button primary" type="submit">
-                  Compose email <span>↗</span>
+                  <Icon name="send" size={17} />
+                  Compose email
                 </button>
                 <small className="form-note">
                   Opens your email app with your message ready to send.
                 </small>
               </form>
-            </div>
-          </Reveal>
-          <Reveal className="contact-aside">
-            <span className="eyebrow">GOOD CONVERSATIONS START HERE</span>
-            <h3>
-              Something great
-              <br />
-              starts with <span>hello.</span>
-            </h3>
-            <a className="email-link" href="mailto:wazahahmad4@gmail.com">
-              wazahahmad4@gmail.com ↗
-            </a>
-            <p>
-              Gujranwala, Pakistan
-              <br />
-              Working with people everywhere.
-            </p>
-            <div className="contact-socials">
-              <small>FIND ME</small>
-              <Socials />
-            </div>
-            <div className="availability">
-              <i />
-              Open to conversations
+              <div className="contact-socials">
+                <h4>FIND ME</h4>
+                <Socials cards />
+                <a className="direct-email" href="mailto:wazahahmad4@gmail.com">
+                  wazahahmad4@gmail.com
+                </a>
+              </div>
             </div>
           </Reveal>
         </div>
@@ -572,7 +612,9 @@ export default function PortfolioClient() {
           <span>
             © {new Date().getFullYear()} Wazah Ahmad. All rights reserved.
           </span>
-          <a href="#home">Back to top ↑</a>
+          <a href="#home">
+            Back to top <span aria-hidden="true">↑</span>
+          </a>
         </div>
       </footer>
     </main>

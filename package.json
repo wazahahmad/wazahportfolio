@@ -9,6 +9,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "@paper-design/shaders-react": "^0.0.82",
     "@react-three/drei": "10.7.9",
     "@react-three/fiber": "9.8.2",
     "framer-motion": "14.14.0",
