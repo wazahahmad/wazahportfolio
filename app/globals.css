@@ -1948,3 +1948,21 @@ body {
     min-height: 51px;
   }
 }
+@media (min-width: 761px) and (max-width: 1699px) {
+  .hero-card {
+    height: 800px;
+    margin-top: -80px;
+  }
+}
+@media (min-width: 1700px) {
+  .hero-card {
+    height: 1000px;
+    margin-top: -150px;
+  }
+}
+@media (max-width: 760px) {
+  .hero-card {
+    height: 690px;
+    margin-top: -85px;
+  }
+}

@@ -1,0 +1,1 @@
+Brand technology icons in this folder are the public SVG assets displayed by https://www.alfari.my.id/ in its Tech Stack tab, retained at the user's request. Their original XML metadata and attribution comments are preserved where provided. Brand names and marks belong to their respective owners.

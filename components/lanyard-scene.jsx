@@ -186,7 +186,7 @@ function Badge({ flipped, setFlipped, reduced }) {
     velocity = useRef(new THREE.Vector3()),
     { camera, invalidate } = useThree();
   const [photo, qr] = useTexture([
-    "/images/portrait.webp",
+    "/images/card-portrait.webp",
     "/images/linkedin-qr.gif",
   ]);
   const faces = useMemo(
@@ -381,7 +381,7 @@ export default function LanyardScene() {
       aria-label="Interactive portfolio card: drag to swing, click to flip"
     >
       <Canvas
-        camera={{ position: [0, 0.7, 5.9], fov: 36 }}
+        camera={{ position: [0, 0.5, 7.5], fov: 36 }}
         dpr={[1, 1.5]}
         frameloop={visible ? (reduced ? "demand" : "always") : "never"}
         gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
