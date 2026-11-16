@@ -25,3 +25,7 @@ Built-in image generation was used for background extraction. Final successful p
 Pushes to main in `wazahahmad/wazahportfolio` deploy to the existing Vercel project and `https://wazahahmad.vercel.app/`.
 
 The 3D scene is dynamically loaded, caps rendering resolution, pauses outside the viewport, and respects reduced motion. Other images use Next image optimization. No external fonts, Spotify embed, or comments backend is loaded.
+
+## Reference matching update
+
+The layout now uses local Inter, a compact desktop navigation pill, brighter star field, larger collage badge artwork, reference-style metallic panel borders, and outline interface icons. Sound controls and Web Audio logic were removed. The Tech Stack tab uses the same 15 entries and publicly served SVG logos displayed by the reference site. Brand logos retain their respective owners' marks; source metadata is retained in SVG files where supplied.

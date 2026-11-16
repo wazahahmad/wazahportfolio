@@ -6,62 +6,178 @@ import { useReducedMotion } from "framer-motion";
 import * as THREE from "three";
 function faceTexture(photo, qr, back) {
   const c = document.createElement("canvas");
-  c.width = 768;
-  c.height = 1080;
+  c.width = 960;
+  c.height = 1360;
   const x = c.getContext("2d");
-  x.fillStyle = "#edf1f5";
-  x.fillRect(0, 0, 768, 1080);
-  x.fillStyle = "#102044";
-  x.fillRect(0, 0, 768, 155);
-  x.fillStyle = "#85b9ff";
-  x.font = "600 21px Arial";
-  x.fillText("WAZAH / DIGITAL EXPERIENCES", 50, 55);
-  x.fillStyle = "#ffffff";
-  x.font = "bold 48px Arial";
-  x.fillText(back ? "LET’S CONNECT" : "DEVELOPER", 50, 116);
-  if (back) {
-    x.fillStyle = "#ffffff";
-    x.fillRect(94, 235, 580, 580);
-    x.imageSmoothingEnabled = false;
-    x.drawImage(qr.image, 114, 255, 540, 540);
-    x.imageSmoothingEnabled = true;
-    x.fillStyle = "#102044";
-    x.textAlign = "center";
-    x.font = "bold 40px Arial";
-    x.fillText("Wazah Ahmad", 384, 900);
-    x.font = "24px Arial";
-    x.fillText("linkedin.com/in/wazahahmad", 384, 950);
-    x.font = "20px Arial";
-    x.fillText("SCAN TO CONNECT", 384, 1015);
-  } else {
-    const im = photo.image;
-    const scale = Math.min(670 / im.width, 640 / im.height);
-    x.drawImage(
-      im,
-      (768 - im.width * scale) / 2,
-      170,
-      im.width * scale,
-      im.height * scale,
-    );
-    x.fillStyle = "#102044";
-    x.fillRect(0, 805, 768, 275);
-    x.fillStyle = "#fff";
-    x.font = "bold 53px Arial";
-    x.fillText("WAZAH AHMAD", 44, 886);
-    x.fillStyle = "#8ebdff";
-    x.font = "bold 28px Arial";
-    x.fillText("SENIOR DEVELOPER", 46, 941);
-    x.fillStyle = "#becce2";
-    x.font = "20px Arial";
-    x.fillText("WORDPRESS · PHP · AUTOMATION", 46, 995);
-    x.font = "18px Arial";
-    x.fillText("GUJRANWALA, PAKISTAN", 46, 1040);
+  x.fillStyle = "#171a20";
+  x.fillRect(0, 0, 960, 1360);
+  x.fillStyle = "#e1e0c9";
+  x.fillRect(28, 28, 904, 1304);
+  // Technical paper, fine grid, and contour linework are drawn locally.
+  x.strokeStyle = "#53627a30";
+  x.lineWidth = 1;
+  for (let n = 35; n < 940; n += 32) {
+    x.beginPath();
+    x.moveTo(n, 28);
+    x.lineTo(n - 50, 1332);
+    x.stroke();
   }
+  for (let n = 28; n < 1350; n += 32) {
+    x.beginPath();
+    x.moveTo(28, n);
+    x.lineTo(932, n + 24);
+    x.stroke();
+  }
+  x.strokeStyle = "#79847355";
+  for (let i = 0; i < 18; i++) {
+    x.beginPath();
+    x.ellipse(550, 570, 220 + i * 22, 370 + i * 16, -0.4, 0, Math.PI * 2);
+    x.stroke();
+  }
+  const text = (s, px, py, size, color = "#252b39", max) => {
+    x.fillStyle = color;
+    x.font = `900 ${size}px Arial`;
+    x.fillText(s, px, py, max);
+  };
+  if (back) {
+    text("LET’S CONNECT", 65, 150, 76, "#202c45", 830);
+    x.fillStyle = "#fff";
+    x.fillRect(140, 270, 680, 680);
+    x.imageSmoothingEnabled = false;
+    x.drawImage(qr.image, 160, 290, 640, 640);
+    x.imageSmoothingEnabled = true;
+    text("WAZAH AHMAD", 130, 1060, 68, "#202c45", 700);
+    text("SENIOR DEVELOPER", 183, 1125, 38, "#314c79", 600);
+    x.font = "28px Arial";
+    x.fillStyle = "#293c5d";
+    x.textAlign = "center";
+    x.fillText("linkedin.com/in/wazahahmad", 480, 1210);
+    x.textAlign = "left";
+  } else {
+    x.fillStyle = "#26334b";
+    x.fillRect(78, 64, 230, 66);
+    text("SENIOR", 99, 112, 47, "#eeecd6", 190);
+    text("W / A", 738, 111, 44, "#26334b", 150);
+    x.strokeStyle = "#3a4655";
+    x.lineWidth = 3;
+    x.strokeRect(65, 156, 830, 230);
+    for (const [a, b] of [
+      [65, 156],
+      [895, 156],
+      [65, 386],
+      [895, 386],
+    ]) {
+      x.fillStyle = "#526174";
+      x.beginPath();
+      x.arc(a, b, 9, 0, Math.PI * 2);
+      x.fill();
+    }
+    x.save();
+    x.translate(74, 335);
+    x.scale(0.65, 1);
+    text("DEVELOPER", 0, 0, 155, "#262c39", 1240);
+    x.restore();
+    x.save();
+    x.translate(852, 427);
+    x.rotate(Math.PI / 2);
+    text("WEB / AUTOMATION", 0, 0, 76, "#253047", 790);
+    x.restore();
+    const g = x.createLinearGradient(90, 440, 650, 980);
+    g.addColorStop(0, "#7f99a3");
+    g.addColorStop(0.45, "#1a3b50");
+    g.addColorStop(1, "#536f72");
+    x.fillStyle = g;
+    x.fillRect(102, 439, 540, 665);
+    x.strokeStyle = "#bfd5d455";
+    for (let i = 0; i < 40; i++) {
+      x.beginPath();
+      for (let j = 0; j < 20; j++) {
+        const px = 102 + j * 28,
+          py = 450 + i * 16 + Math.sin(j * 0.9 + i) * 10;
+        j ? x.lineTo(px, py) : x.moveTo(px, py);
+      }
+      x.stroke();
+    }
+    const im = photo.image;
+    const crop = {
+      x: im.width * 0.19,
+      y: im.height * 0.065,
+      w: im.width * 0.64,
+      h: im.height * 0.935,
+    };
+    x.save();
+    x.beginPath();
+    x.rect(28, 170, 904, 1100);
+    x.clip();
+    x.drawImage(im, crop.x, crop.y, crop.w, crop.h, 60, 225, 810, 1420);
+    x.restore();
+    x.fillStyle = "#edead5";
+    x.save();
+    x.translate(131, 990);
+    x.rotate(-0.025);
+    x.fillRect(0, 0, 642, 76);
+    text("WAZAH AHMAD", 16, 56, 53, "#242d3e", 610);
+    x.restore();
+    x.fillStyle = "#19263e";
+    x.save();
+    x.translate(28, 1194);
+    x.rotate(-0.035);
+    x.fillRect(0, 0, 925, 145);
+    text("PORTFOLIO", 35, 102, 77, "#eeecd5", 590);
+    x.font = "20px Arial";
+    x.fillStyle = "#c0c6cd";
+    x.fillText("Built with purpose.", 630, 65);
+    x.fillText("Made to matter.", 630, 95);
+    x.restore();
+    // Metallic corner rings and a dark card slot echo the reference badge construction.
+    for (const [cx, cy, r] of [
+      [56, 1230, 100],
+      [904, 1260, 88],
+    ]) {
+      x.strokeStyle = "#4b5359";
+      x.lineWidth = 28;
+      x.beginPath();
+      x.arc(cx, cy, r, -1, 3.8);
+      x.stroke();
+      x.strokeStyle = "#dce1de";
+      x.lineWidth = 12;
+      x.beginPath();
+      x.arc(cx - 4, cy - 3, r, -1, 3.8);
+      x.stroke();
+    }
+  }
+  x.fillStyle = "#090e17";
+  x.beginPath();
+  x.roundRect(373, 30, 214, 42, 20);
+  x.fill();
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
-  t.anisotropy = 4;
+  t.anisotropy = 8;
   return t;
 }
+function strapTexture() {
+  const c = document.createElement("canvas");
+  c.width = 160;
+  c.height = 1024;
+  const x = c.getContext("2d");
+  x.fillStyle = "#16191b";
+  x.fillRect(0, 0, 160, 1024);
+  for (let i = 0; i < 160; i += 4) {
+    x.fillStyle = i % 8 ? "#ffffff07" : "#0004";
+    x.fillRect(i, 0, 1, 1024);
+  }
+  x.save();
+  x.translate(110, 180);
+  x.rotate(Math.PI / 2);
+  x.fillStyle = "#efefea";
+  x.font = "bold 44px Arial";
+  x.fillText("ⓦ Wazah Ahmad", 0, 0);
+  x.restore();
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
 function Badge({ flipped, setFlipped, reduced }) {
   const group = useRef(),
     ribbon = useRef(),
@@ -78,6 +194,8 @@ function Badge({ flipped, setFlipped, reduced }) {
     [photo, qr],
   );
   useEffect(() => () => faces.forEach((t) => t.dispose()), [faces]);
+  const bandTexture = useMemo(strapTexture, []);
+  useEffect(() => () => bandTexture.dispose(), [bandTexture]);
   const strip = useMemo(() => {
     const g = new THREE.BufferGeometry();
     g.setAttribute(
@@ -89,6 +207,11 @@ function Badge({ flipped, setFlipped, reduced }) {
       const k = i * 2;
       idx.push(k, k + 1, k + 2, k + 1, k + 3, k + 2);
     }
+    const uv = new Float32Array(33 * 4);
+    for (let i = 0; i <= 32; i++) {
+      uv.set([0, 1 - i / 32, 1, 1 - i / 32], i * 4);
+    }
+    g.setAttribute("uv", new THREE.BufferAttribute(uv, 2));
     g.setIndex(idx);
     return g;
   }, []);
@@ -107,7 +230,7 @@ function Badge({ flipped, setFlipped, reduced }) {
       v.set(0, 0, 0);
       p.lerp(target, 1 - Math.exp(-18 * dt));
     } else {
-      const restX = reduced ? 0 : Math.sin(s.clock.elapsedTime * 0.65) * 0.025;
+      const restX = reduced ? 0 : Math.sin(s.clock.elapsedTime * 0.65) * 0.07;
       v.x += (-p.x + restX) * 17 * dt;
       v.y += (-0.15 - p.y) * 20 * dt;
       v.multiplyScalar(Math.exp(-3.1 * dt));
@@ -117,7 +240,7 @@ function Badge({ flipped, setFlipped, reduced }) {
       group.current.position.copy(p);
       group.current.rotation.z = THREE.MathUtils.damp(
         group.current.rotation.z,
-        -p.x * 0.27,
+        -0.025 - p.x * 0.27,
         5,
         dt,
       );
@@ -140,8 +263,8 @@ function Badge({ flipped, setFlipped, reduced }) {
       const x = p.x * t * t;
       const y = 3.6 + (p.y + 1.32 - 3.6) * t;
       const z = Math.sin(t * Math.PI) * (0.16 + Math.abs(p.x) * 0.16);
-      a.setXYZ(i * 2, x - 0.075, y, z);
-      a.setXYZ(i * 2 + 1, x + 0.075, y, z);
+      a.setXYZ(i * 2, x - 0.11, y, z);
+      a.setXYZ(i * 2 + 1, x + 0.11, y, z);
     }
     a.needsUpdate = true;
     strip.computeVertexNormals();
@@ -169,7 +292,8 @@ function Badge({ flipped, setFlipped, reduced }) {
     <>
       <mesh geometry={strip} ref={ribbon}>
         <meshStandardMaterial
-          color="#182b55"
+          map={bandTexture}
+          color="#c7c7c7"
           roughness={0.65}
           side={THREE.DoubleSide}
         />
@@ -202,6 +326,14 @@ function Badge({ flipped, setFlipped, reduced }) {
           invalidate();
         }}
       >
+        <mesh position={[0, 1.58, 0]}>
+          <boxGeometry args={[0.29, 0.16, 0.09]} />
+          <meshStandardMaterial
+            color="#aeb6be"
+            metalness={0.9}
+            roughness={0.25}
+          />
+        </mesh>
         <mesh position={[0, 1.3, 0]}>
           <torusGeometry args={[0.13, 0.035, 12, 32]} />
           <meshStandardMaterial
@@ -212,7 +344,7 @@ function Badge({ flipped, setFlipped, reduced }) {
         </mesh>
         <RoundedBox args={[1.85, 2.6, 0.1]} radius={0.095} smoothness={4}>
           <meshStandardMaterial
-            color="#afbdd0"
+            color="#22252b"
             metalness={0.4}
             roughness={0.3}
           />
@@ -249,7 +381,7 @@ export default function LanyardScene() {
       aria-label="Interactive portfolio card: drag to swing, click to flip"
     >
       <Canvas
-        camera={{ position: [0, 0.6, 7], fov: 37 }}
+        camera={{ position: [0, 0.7, 5.9], fov: 36 }}
         dpr={[1, 1.5]}
         frameloop={visible ? (reduced ? "demand" : "always") : "never"}
         gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}

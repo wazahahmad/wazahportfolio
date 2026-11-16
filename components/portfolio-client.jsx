@@ -1,9 +1,11 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
+import Icon from "./icon";
+import { techStack } from "../lib/tech-stack";
 import { projects } from "../lib/projects";
 const Lanyard = dynamic(() => import("./lanyard-scene"), {
   ssr: false,
@@ -58,20 +60,6 @@ const education = [
   ],
   ["MS", "Matriculation", "Secondary Education", "2014", "840/1100 · 76.36%"],
 ];
-const skills = [
-  "WordPress",
-  "PHP",
-  "Laravel",
-  "JavaScript",
-  "React",
-  "Next.js",
-  "Three.js",
-  "Shopify",
-  "n8n",
-  "AI Automation",
-  "AI Agents",
-  "Voice Agents",
-];
 function Reveal({ children, className = "" }) {
   const reduced = useReducedMotion();
   return (
@@ -90,8 +78,16 @@ function Socials() {
   return (
     <div className="social-links">
       {socials.map(([name, url]) => (
-        <a key={name} href={url} target="_blank" rel="noopener noreferrer">
-          {name} <span>↗</span>
+        <a
+          key={name}
+          aria-label={name}
+          title={name}
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <Icon name={name === "GitHub" ? "github" : "linkedin"} size={19} />
+          <span className="social-name">{name}</span>
         </a>
       ))}
     </div>
@@ -103,9 +99,7 @@ export default function PortfolioClient() {
     [tab, setTab] = useState("Projects"),
     [portrait, setPortrait] = useState(false),
     [ready, setReady] = useState(false),
-    [sound, setSound] = useState(false),
     [role, setRole] = useState("Senior Developer");
-  const audio = useRef(null);
   const reduced = useReducedMotion();
   useEffect(() => {
     const timer = setTimeout(() => setReady(true), 250);
@@ -123,40 +117,58 @@ export default function PortfolioClient() {
     };
   }, []);
   useEffect(() => {
-    if (reduced) return;
+    if (reduced) {
+      setRole("Senior Developer");
+      return;
+    }
     const roles = [
       "Senior Developer",
       "WordPress Developer",
       "Automation Builder",
     ];
-    let index = 0;
-    const timer = setInterval(() => {
-      index = (index + 1) % roles.length;
-      setRole(roles[index]);
-    }, 3500);
-    return () => clearInterval(timer);
+    let index = 0,
+      count = roles[0].length,
+      deleting = false,
+      timer;
+    const tick = () => {
+      const word = roles[index];
+      if (!deleting && count === word.length) {
+        deleting = true;
+        timer = setTimeout(tick, 2200);
+        return;
+      }
+      if (deleting && count === 0) {
+        deleting = false;
+        index = (index + 1) % roles.length;
+        timer = setTimeout(tick, 280);
+        return;
+      }
+      count += deleting ? -1 : 1;
+      setRole(roles[index].slice(0, count));
+      timer = setTimeout(tick, deleting ? 35 : 75);
+    };
+    timer = setTimeout(tick, 2200);
+    return () => clearTimeout(timer);
   }, [reduced]);
-  const play = () => {
-    if (!sound) return;
-    try {
-      const C = window.AudioContext || window.webkitAudioContext;
-      const ctx = audio.current || (audio.current = new C());
-      ctx.resume();
-      const o = ctx.createOscillator(),
-        g = ctx.createGain();
-      o.connect(g);
-      g.connect(ctx.destination);
-      o.frequency.setValueAtTime(620, ctx.currentTime);
-      g.gain.setValueAtTime(0.025, ctx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.07);
-      o.start();
-      o.stop(ctx.currentTime + 0.08);
-    } catch {}
-  };
   return (
     <main className="portfolio-site">
       <div className="space-bg" aria-hidden="true">
         <div className="stars" />
+        <div className="star-points">
+          {Array.from({ length: 100 }, (_, i) => (
+            <i
+              key={i}
+              style={{
+                left: `${((i * 73 + 19) % 997) / 10}%`,
+                top: `${((i * 137 + 41) % 991) / 10}%`,
+                width: i % 13 === 0 ? 3 : 1.3,
+                height: i % 13 === 0 ? 3 : 1.3,
+                opacity: 0.25 + (i % 7) / 10,
+              }}
+            />
+          ))}
+        </div>
+        <div className="shooting-star" />
         <div className="nebula" />
       </div>
       <header className="header-wrap">
@@ -172,7 +184,6 @@ export default function PortfolioClient() {
                 className={active === id ? "active" : ""}
                 onClick={() => {
                   setMenu(false);
-                  play();
                 }}
               >
                 {id[0].toUpperCase() + id.slice(1)}
@@ -181,20 +192,12 @@ export default function PortfolioClient() {
           </nav>
           <div className="nav-tools">
             <button
-              className="sound-toggle"
-              aria-label={sound ? "Mute sound effects" : "Enable sound effects"}
-              aria-pressed={sound}
-              onClick={() => setSound(!sound)}
-            >
-              {sound ? "♫" : "♩"}
-            </button>
-            <button
               className="menu-button"
               aria-label="Toggle navigation"
               aria-expanded={menu}
               onClick={() => setMenu(!menu)}
             >
-              ☰
+              <Icon name="menu" />
             </button>
           </div>
         </div>
@@ -208,10 +211,10 @@ export default function PortfolioClient() {
           <h1>
             <span>Welcome to</span>
             <br />
-            My Portfolio<span className="dot">.</span>
+            My Portfolio
           </h1>
           <div className="role-line">
-            <span key={role}>{role}</span>
+            <span>{role}</span>
             <i />
           </div>
           <p className="hero-description">
@@ -221,11 +224,11 @@ export default function PortfolioClient() {
             build experiences that feel right.
           </p>
           <div className="hero-buttons">
-            <a className="button primary" href="#portfolio" onClick={play}>
-              View Projects <span>↗</span>
+            <a className="button primary" href="#portfolio">
+              View Projects <Icon name="arrow" size={19} />
             </a>
-            <a className="button secondary" href="#contact" onClick={play}>
-              Contact Me <span>↗</span>
+            <a className="button secondary" href="#contact">
+              Contact Me <Icon name="send" size={19} />
             </a>
           </div>
           <div className="find-me">
@@ -315,7 +318,12 @@ export default function PortfolioClient() {
           ].map(([heading, items]) => (
             <Reveal key={heading}>
               <h3 className="timeline-title">
-                <span>{heading === "Education" ? "▧" : "⌘"}</span>
+                <span>
+                  <Icon
+                    name={heading === "Education" ? "education" : "briefcase"}
+                    size={24}
+                  />
+                </span>
                 {heading}
               </h3>
               <div className="timeline">
@@ -376,10 +384,9 @@ export default function PortfolioClient() {
                 className={tab === t ? "selected" : ""}
                 onClick={() => {
                   setTab(t);
-                  play();
                 }}
               >
-                {t === "Projects" ? "▦" : "⌘"} {t}
+                <Icon name={t === "Projects" ? "code" : "cpu"} size={22} /> {t}
               </button>
             ))}
           </div>
@@ -422,7 +429,7 @@ export default function PortfolioClient() {
                           className="project-details"
                           href={`/projects/${p.slug}`}
                         >
-                          Details <span>↗</span>
+                          Details <Icon name="arrow" size={18} />
                         </Link>
                       </div>
                     </article>
@@ -432,11 +439,16 @@ export default function PortfolioClient() {
             </>
           ) : (
             <div className="skills-grid">
-              {skills.map((s, i) => (
-                <div className="skill" key={s}>
-                  <span>{s.slice(0, 2)}</span>
-                  <strong>{s}</strong>
-                  <small>{String(i + 1).padStart(2, "0")}</small>
+              {techStack.map((s) => (
+                <div className="skill" key={s.name}>
+                  <Image
+                    src={s.icon}
+                    alt=""
+                    width={58}
+                    height={58}
+                    unoptimized
+                  />
+                  <h3>{s.name}</h3>
                 </div>
               ))}
             </div>
