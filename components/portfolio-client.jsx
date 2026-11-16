@@ -220,8 +220,9 @@ export default function PortfolioClient() {
           <p className="hero-description">
             Hi, I’m Wazah Ahmad. I turn ideas into fast, thoughtful websites and
             practical automations. With 6+ years across agency and freelance
-            projects, I bring code, design, and a little curiosity together to
-            build experiences that feel right.
+            projects, I bring code, design, and curiosity together. From
+            WordPress and Laravel websites to AI agents and workflows, I build
+            experiences that are thoughtful, dependable, and easy to use.
           </p>
           <div className="hero-buttons">
             <a className="button primary" href="#portfolio">

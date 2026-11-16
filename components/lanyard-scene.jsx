@@ -381,7 +381,7 @@ export default function LanyardScene() {
       aria-label="Interactive portfolio card: drag to swing, click to flip"
     >
       <Canvas
-        camera={{ position: [0, 0.5, 7.5], fov: 36 }}
+        camera={{ position: [0, 0.5, 6.8], fov: 36 }}
         dpr={[1, 1.5]}
         frameloop={visible ? (reduced ? "demand" : "always") : "never"}
         gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
