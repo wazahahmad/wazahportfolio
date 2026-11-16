@@ -166,16 +166,15 @@ function strapTexture() {
     x.fillStyle = i % 6 ? "#ffffff09" : "#0005";
     x.fillRect(i, 0, 1, 2048);
   }
-  x.strokeStyle = "#a4a8af45";
-  x.lineWidth = 5;
+  x.strokeStyle = "#696e742c";
+  x.lineWidth = 2;
   x.strokeRect(10, 0, 236, 2048);
   for (const y of [35, 735, 1435]) {
     x.save();
     x.translate(178, y);
     x.rotate(Math.PI / 2);
     x.fillStyle = "#f0f0ec";
-    x.font = "bold 84px Arial";
-    x.fillText("ⓦ Wazah Ahmad", 0, 0, 650);
+    x.strokeStyle="#f0f0ec";x.lineWidth=8;x.beginPath();x.arc(47,-28,43,0,Math.PI*2);x.stroke();x.font="italic 800 62px Arial";x.fillText("W",16,-7);x.font="800 76px Arial";x.letterSpacing="5px";x.fillText("Wazah Ahmad",118,0,525);
     x.restore();
   }
   const t = new THREE.CanvasTexture(c);
@@ -201,6 +200,8 @@ function Badge({ flipped, setFlipped, reduced }) {
   );
   useEffect(() => () => faces.forEach((t) => t.dispose()), [faces]);
   const bandTexture = useMemo(strapTexture, []);
+ const clasp=useMemo(()=>new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(-.015,1.51,.055),new THREE.Vector3(.065,1.48,.11),new THREE.Vector3(.07,1.37,.14),new THREE.Vector3(.02,1.25,.14),new THREE.Vector3(-.065,1.14,.10),new THREE.Vector3(-.115,1.20,.075),new THREE.Vector3(-.09,1.29,.065)]),48,.024,12,false),[]);
+ useEffect(()=>()=>clasp.dispose(),[clasp]);
   useEffect(() => () => bandTexture.dispose(), [bandTexture]);
   const strip = useMemo(() => {
     const g = new THREE.BufferGeometry();
@@ -417,7 +418,7 @@ function Badge({ flipped, setFlipped, reduced }) {
         }}
       >
         <RoundedBox args={[0.29,0.20,0.11]} radius={0.025} smoothness={3} position={[0,1.60,0.035]}><meshStandardMaterial color="#aeb7c0" metalness={0.65} roughness={0.24}/></RoundedBox>
-        <mesh position={[0,1.31,0.10]} scale={[0.65,1.25,1]}><torusGeometry args={[0.16,0.025,16,48]}/><meshStandardMaterial color="#d3dbe2" metalness={0.65} roughness={0.19}/></mesh>
+        <mesh geometry={clasp}><meshStandardMaterial color="#d3dbe2" metalness={0.65} roughness={0.19}/></mesh>
         <RoundedBox args={[1.85, 2.6, 0.1]} radius={0.095} smoothness={4}>
           <meshStandardMaterial
             color="#22252b"
