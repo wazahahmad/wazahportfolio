@@ -362,7 +362,7 @@ function Badge({ flipped, setFlipped, reduced }) {
         i * 2 + 1,
         rope.point.x + rope.side.x,
         rope.point.y + rope.side.y,
-        rope.point.z - 0.006,
+        rope.point.z + rope.side.z,
       );
     }
     // The fabric enters the crimp along the badge's own width axis.
@@ -426,19 +426,29 @@ function Badge({ flipped, setFlipped, reduced }) {
         onPointerMove={(e) => {
           if (!drag.current) return;
           e.ray.intersectPlane(plane, temp);
+          const desktop = window.matchMedia("(min-width:761px)").matches;
           drag.current.target.set(
-            THREE.MathUtils.clamp(temp.x, -1.65, 1.65),
-            THREE.MathUtils.clamp(temp.y, -1.4, 0.8),
+            THREE.MathUtils.clamp(
+              temp.x,
+              desktop ? -5.5 : -1.65,
+              desktop ? 2.5 : 1.65,
+            ),
+            THREE.MathUtils.clamp(
+              temp.y,
+              desktop ? -2.4 : -1.4,
+              desktop ? 3.2 : 0.8,
+            ),
             0,
           );
-          temp
-            .copy(drag.current.target)
-            .add(new THREE.Vector3(0, 1.68, 0))
-            .sub(rope.anchor)
-            .clampLength(0, rope.length - 0.03)
-            .add(rope.anchor)
-            .sub(new THREE.Vector3(0, 1.68, 0));
-          drag.current.target.copy(temp);
+          if (!desktop)
+            temp
+              .copy(drag.current.target)
+              .add(new THREE.Vector3(0, 1.68, 0))
+              .sub(rope.anchor)
+              .clampLength(0, rope.length - 0.03)
+              .add(rope.anchor)
+              .sub(new THREE.Vector3(0, 1.68, 0));
+          if (!desktop) drag.current.target.copy(temp);
           invalidate();
         }}
         onPointerUp={release}
@@ -487,6 +497,27 @@ function Badge({ flipped, setFlipped, reduced }) {
     </>
   );
 }
+function SceneViewport() {
+  const { camera, size, invalidate } = useThree();
+  useEffect(() => {
+    if (window.matchMedia("(min-width:761px)").matches) {
+      const originalWidth = window.innerWidth <= 1100 ? 520 : 650;
+      const originalLeft = window.innerWidth * 0.74 - originalWidth / 2;
+      camera.setViewOffset(
+        originalWidth,
+        window.innerHeight,
+        -originalLeft,
+        0,
+        size.width,
+        size.height,
+      );
+    } else camera.clearViewOffset();
+    camera.updateProjectionMatrix();
+    invalidate();
+    return () => camera.clearViewOffset();
+  }, [camera, size.width, size.height, invalidate]);
+  return null;
+}
 function StudioEnvironment() {
   const { gl, scene } = useThree();
   useEffect(() => {
@@ -525,10 +556,11 @@ export default function LanyardScene() {
     >
       <Canvas
         camera={{ position: [0, 0.5, 6.8], fov: 36 }}
-        dpr={[1, 1.5]}
+        dpr={[1, 1.25]}
         frameloop={visible ? (reduced ? "demand" : "always") : "never"}
         gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
       >
+        <SceneViewport />
         <StudioEnvironment />
         <ambientLight intensity={1.7} />
         <directionalLight position={[3, 5, 5]} intensity={2.8} />

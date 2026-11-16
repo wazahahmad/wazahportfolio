@@ -3465,3 +3465,36 @@ body,
 .tech-marquee img[src="/icons/vercel.svg"] {
   filter: invert(1);
 }
+
+/* Allow the badge to travel behind the surrounding hero content. */
+@media (min-width: 761px) {
+  .hero.shell {
+    overflow: visible;
+  }
+  .hero-card {
+    left: calc(50% - 50vw);
+    top: 0;
+    width: 100vw;
+    height: calc(100svh + 300px);
+    z-index: 1;
+  }
+  .hero-copy {
+    position: relative;
+    z-index: 2;
+  }
+  .services-band {
+    margin-top: 100px;
+    z-index: 3;
+  }
+  #about {
+    position: relative;
+    z-index: 3;
+  }
+  .hero-card .lanyard-controls {
+    left: 74%;
+    right: auto;
+    transform: translateX(-50%);
+    bottom: 240px;
+    white-space: nowrap;
+  }
+}
