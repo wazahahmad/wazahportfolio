@@ -274,18 +274,15 @@ function Badge({ flipped, setFlipped, reduced }) {
     [],
   );
   const temp = useMemo(() => new THREE.Vector3(), []);
-  const rope = useMemo(() => {
-    const count = 17,
-      anchor = new THREE.Vector3(0, 3.8, 0);
-    const nodes = Array.from(
-      { length: count },
-      (_, i) => new THREE.Vector3(0, 3.8 - (i * 2.28) / (count - 1), 0),
-    );
-    return {
-      anchor,
-      nodes,
-      previous: nodes.map((n) => n.clone()),
-      curve: new THREE.CatmullRomCurve3(nodes),
+  const rope = useMemo(
+    () => ({
+      anchor: new THREE.Vector3(0, 3.8, 0),
+      curve: new THREE.CubicBezierCurve3(
+        new THREE.Vector3(),
+        new THREE.Vector3(),
+        new THREE.Vector3(),
+        new THREE.Vector3(),
+      ),
       end: new THREE.Vector3(),
       point: new THREE.Vector3(),
       tangent: new THREE.Vector3(),
@@ -294,8 +291,9 @@ function Badge({ flipped, setFlipped, reduced }) {
       orientation: new THREE.Quaternion(),
       rotation: new THREE.Euler(),
       length: 2.4,
-    };
-  }, []);
+    }),
+    [],
+  );
 
   useFrame((s, dt) => {
     dt = Math.min(dt, 0.03);
@@ -336,45 +334,12 @@ function Badge({ flipped, setFlipped, reduced }) {
 
     // Pin the final fabric node to the actual transformed top of the metal clip.
     rope.end.set(0, 1.68, 0).applyQuaternion(group.current.quaternion).add(p);
-    const nodes = rope.nodes,
-      previous = rope.previous,
-      n = nodes.length - 1;
-    for (let i = 1; i < n; i++) {
-      const node = nodes[i],
-        old = previous[i];
-      rope.delta.subVectors(node, old).multiplyScalar(Math.exp(-4 * dt));
-      old.copy(node);
-      node.add(rope.delta);
-      node.y -= 7 * dt * dt;
-      if (!reduced)
-        node.z +=
-          Math.sin(s.clock.elapsedTime * 0.7 + i * 0.3) * 0.12 * dt * dt;
-    }
-    const segment = rope.length / n;
-    for (let iteration = 0; iteration < 12; iteration++) {
-      nodes[0].copy(rope.anchor);
-      nodes[n].copy(rope.end);
-      for (let i = 0; i < n; i++) {
-        const left = nodes[i],
-          right = nodes[i + 1];
-        rope.delta.subVectors(right, left);
-        const distance = Math.max(rope.delta.length(), 0.0001);
-        rope.delta.multiplyScalar((distance - segment) / distance);
-        if (i === 0) right.sub(rope.delta);
-        else if (i + 1 === n) left.add(rope.delta);
-        else {
-          left.addScaledVector(rope.delta, 0.5);
-          right.addScaledVector(rope.delta, -0.5);
-        }
-      }
-    }
-    nodes[0].copy(rope.anchor);
-    nodes[n].copy(rope.end);
-    // Keep a short straight fabric tail seated inside the metal crimp.
-    for (let j = 1; j <= 2; j++) {
-      rope.delta.set(0, j * 0.15, 0).applyQuaternion(group.current.quaternion);
-      nodes[n - j].copy(rope.end).add(rope.delta);
-    }
+    // Continuous fabric curve: the lower tangent enters the crimp vertically.
+    rope.curve.v0.copy(rope.anchor);
+    rope.curve.v1.copy(rope.anchor).add(rope.delta.set(0, -0.85, 0));
+    rope.delta.set(0, 0.65, 0).applyQuaternion(group.current.quaternion);
+    rope.curve.v2.copy(rope.end).add(rope.delta);
+    rope.curve.v3.copy(rope.end);
     const a = strip.attributes.position;
     for (let i = 0; i <= 32; i++) {
       const t = i / 32;
