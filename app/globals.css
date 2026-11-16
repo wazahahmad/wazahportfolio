@@ -3454,3 +3454,14 @@ body,
   right: 0;
   mask-image: linear-gradient(270deg, #000, transparent);
 }
+
+.portfolio-site {
+  background-color: transparent;
+}
+.hero h1 > span:first-child {
+  background-image: linear-gradient(110deg, #8750f7, #cbb4ff);
+}
+.tech-marquee img[src="/icons/github.svg"],
+.tech-marquee img[src="/icons/vercel.svg"] {
+  filter: invert(1);
+}

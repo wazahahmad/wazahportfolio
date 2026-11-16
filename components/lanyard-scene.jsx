@@ -291,7 +291,9 @@ function Badge({ flipped, setFlipped, reduced }) {
       tangent: new THREE.Vector3(),
       side: new THREE.Vector3(),
       delta: new THREE.Vector3(),
-      length: 2.7,
+      orientation: new THREE.Quaternion(),
+      rotation: new THREE.Euler(),
+      length: 2.4,
     };
   }, []);
 
@@ -373,13 +375,13 @@ function Badge({ flipped, setFlipped, reduced }) {
       const t = i / 32;
       rope.curve.getPoint(t, rope.point);
       rope.curve.getTangent(t, rope.tangent);
-      rope.side
-        .set(-rope.tangent.y, rope.tangent.x, 0)
-        .normalize()
-        .multiplyScalar(0.115);
-      // Distribute card rotation through the fabric so it twists into the crimp.
-      const twist = -group.current.rotation.y * t * t;
-      rope.side.applyAxisAngle(rope.tangent, twist);
+      rope.rotation.set(
+        group.current.rotation.x * t * t,
+        group.current.rotation.y * t * t,
+        group.current.rotation.z * t * t,
+      );
+      rope.orientation.setFromEuler(rope.rotation);
+      rope.side.set(0.115, 0, 0).applyQuaternion(rope.orientation);
       a.setXYZ(
         i * 2,
         rope.point.x - rope.side.x,
@@ -433,11 +435,10 @@ function Badge({ flipped, setFlipped, reduced }) {
   return (
     <>
       <mesh geometry={strip} ref={ribbon}>
-        <meshStandardMaterial
+        <meshBasicMaterial
           map={bandTexture}
-          color="#ffffff"
-          roughness={0.85}
           side={THREE.DoubleSide}
+          toneMapped={false}
         />
       </mesh>
       <group
