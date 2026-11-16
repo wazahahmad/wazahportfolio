@@ -4,6 +4,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { RoundedBox, useTexture } from "@react-three/drei";
 import { useReducedMotion } from "framer-motion";
 import * as THREE from "three";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 function faceTexture(photo, qr, back) {
   const c = document.createElement("canvas");
   c.width = 960;
@@ -36,28 +37,28 @@ function faceTexture(photo, qr, back) {
   }
   const text = (s, px, py, size, color = "#252b39", max) => {
     x.fillStyle = color;
-    x.font = `900 ${size}px Arial`;
+    x.font = `${size}px BadgeCondensed, Impact, sans-serif`;
     x.fillText(s, px, py, max);
   };
   if (back) {
-    text("LET’S CONNECT", 65, 150, 76, "#202c45", 830);
+    text("LET’S CONNECT", 65, 150, 76, "#2a1454", 830);
     x.fillStyle = "#fff";
     x.fillRect(140, 270, 680, 680);
     x.imageSmoothingEnabled = false;
     x.drawImage(qr.image, 160, 290, 640, 640);
     x.imageSmoothingEnabled = true;
-    text("WAZAH AHMAD", 130, 1060, 68, "#202c45", 700);
-    text("SENIOR DEVELOPER", 183, 1125, 38, "#314c79", 600);
+    text("WAZAH AHMAD", 130, 1060, 68, "#2a1454", 700);
+    text("SENIOR DEVELOPER", 183, 1125, 38, "#7440a9", 600);
     x.font = "28px Arial";
-    x.fillStyle = "#293c5d";
+    x.fillStyle = "#46305e";
     x.textAlign = "center";
     x.fillText("linkedin.com/in/wazahahmad", 480, 1210);
     x.textAlign = "left";
   } else {
-    x.fillStyle = "#26334b";
+    x.fillStyle = "#2a1454";
     x.fillRect(78, 64, 230, 66);
-    text("SENIOR", 99, 112, 47, "#eeecd6", 190);
-    text("W / A", 738, 111, 44, "#26334b", 150);
+    text("SENIOR", 113, 116, 61, "#eeecd6", 180);
+    text("W / A", 738, 111, 44, "#2a1454", 150);
     x.strokeStyle = "#3a4655";
     x.lineWidth = 3;
     x.strokeRect(65, 156, 830, 230);
@@ -73,9 +74,11 @@ function faceTexture(photo, qr, back) {
       x.fill();
     }
     x.save();
-    x.translate(74, 335);
-    x.scale(0.65, 1);
-    text("DEVELOPER", 0, 0, 155, "#262c39", 1240);
+    x.font = "244px BadgeCondensed, Impact, sans-serif";
+    x.translate(77, 359);
+    x.scale(806 / x.measureText("DEVELOPER").width, 1);
+    x.fillStyle = "#262c39";
+    x.fillText("DEVELOPER", 0, 0);
     x.restore();
     x.save();
     x.translate(852, 427);
@@ -83,9 +86,9 @@ function faceTexture(photo, qr, back) {
     text("WEB / AUTOMATION", 0, 0, 76, "#253047", 790);
     x.restore();
     const g = x.createLinearGradient(90, 440, 650, 980);
-    g.addColorStop(0, "#7f99a3");
-    g.addColorStop(0.45, "#1a3b50");
-    g.addColorStop(1, "#536f72");
+    g.addColorStop(0, "#a08bb9");
+    g.addColorStop(0.45, "#362052");
+    g.addColorStop(1, "#6b527e");
     x.fillStyle = g;
     x.fillRect(102, 439, 540, 665);
     x.strokeStyle = "#bfd5d455";
@@ -118,7 +121,7 @@ function faceTexture(photo, qr, back) {
     x.fillRect(0, 0, 642, 76);
     text("WAZAH AHMAD", 16, 56, 53, "#242d3e", 610);
     x.restore();
-    x.fillStyle = "#19263e";
+    x.fillStyle = "#2a1454";
     x.save();
     x.translate(28, 1194);
     x.rotate(-0.035);
@@ -171,10 +174,22 @@ function strapTexture() {
   x.strokeRect(10, 0, 236, 2048);
   for (const y of [35, 735, 1435]) {
     x.save();
-    x.translate(178, y);
+    x.translate(128, y);
     x.rotate(Math.PI / 2);
     x.fillStyle = "#f0f0ec";
-    x.strokeStyle="#f0f0ec";x.lineWidth=8;x.beginPath();x.arc(47,-28,43,0,Math.PI*2);x.stroke();x.font="italic 800 62px Arial";x.fillText("W",16,-7);x.font="800 76px Arial";x.letterSpacing="5px";x.fillText("Wazah Ahmad",118,0,525);
+    x.textBaseline = "middle";
+    x.strokeStyle = "#f0f0ec";
+    x.lineWidth = 8;
+    x.beginPath();
+    x.arc(47, 0, 40, 0, Math.PI * 2);
+    x.stroke();
+    x.font = "italic 800 56px Arial";
+    x.textAlign = "center";
+    x.fillText("W", 47, 1);
+    x.textAlign = "left";
+    x.font = "800 66px Arial";
+    x.letterSpacing = "4px";
+    x.fillText("Wazah Ahmad", 115, 0, 525);
     x.restore();
   }
   const t = new THREE.CanvasTexture(c);
@@ -194,14 +209,45 @@ function Badge({ flipped, setFlipped, reduced }) {
     "/images/card-portrait.webp",
     "/images/linkedin-qr.gif",
   ]);
+  const [fontReady, setFontReady] = useState(false);
+  useEffect(() => {
+    let alive = true;
+    document.fonts.load("80px BadgeCondensed").then(() => {
+      if (alive) {
+        setFontReady(true);
+        invalidate();
+      }
+    });
+    return () => {
+      alive = false;
+    };
+  }, [invalidate]);
   const faces = useMemo(
     () => [faceTexture(photo, qr, false), faceTexture(photo, qr, true)],
-    [photo, qr],
+    [photo, qr, fontReady],
   );
   useEffect(() => () => faces.forEach((t) => t.dispose()), [faces]);
   const bandTexture = useMemo(strapTexture, []);
- const clasp=useMemo(()=>new THREE.TubeGeometry(new THREE.CatmullRomCurve3([new THREE.Vector3(-.015,1.51,.055),new THREE.Vector3(.065,1.48,.11),new THREE.Vector3(.07,1.37,.14),new THREE.Vector3(.02,1.25,.14),new THREE.Vector3(-.065,1.14,.10),new THREE.Vector3(-.115,1.20,.075),new THREE.Vector3(-.09,1.29,.065)]),48,.024,12,false),[]);
- useEffect(()=>()=>clasp.dispose(),[clasp]);
+  const clasp = useMemo(
+    () =>
+      new THREE.TubeGeometry(
+        new THREE.CatmullRomCurve3([
+          new THREE.Vector3(-0.015, 1.51, 0.055),
+          new THREE.Vector3(0.065, 1.48, 0.11),
+          new THREE.Vector3(0.07, 1.37, 0.14),
+          new THREE.Vector3(0.02, 1.25, 0.14),
+          new THREE.Vector3(-0.065, 1.14, 0.1),
+          new THREE.Vector3(-0.115, 1.2, 0.075),
+          new THREE.Vector3(-0.09, 1.29, 0.065),
+        ]),
+        48,
+        0.024,
+        12,
+        false,
+      ),
+    [],
+  );
+  useEffect(() => () => clasp.dispose(), [clasp]);
   useEffect(() => () => bandTexture.dispose(), [bandTexture]);
   const strip = useMemo(() => {
     const g = new THREE.BufferGeometry();
@@ -331,11 +377,14 @@ function Badge({ flipped, setFlipped, reduced }) {
         .set(-rope.tangent.y, rope.tangent.x, 0)
         .normalize()
         .multiplyScalar(0.115);
+      // Distribute card rotation through the fabric so it twists into the crimp.
+      const twist = -group.current.rotation.y * t * t;
+      rope.side.applyAxisAngle(rope.tangent, twist);
       a.setXYZ(
         i * 2,
         rope.point.x - rope.side.x,
         rope.point.y - rope.side.y,
-        rope.point.z - 0.006,
+        rope.point.z - rope.side.z,
       );
       a.setXYZ(
         i * 2 + 1,
@@ -345,9 +394,19 @@ function Badge({ flipped, setFlipped, reduced }) {
       );
     }
     // The fabric enters the crimp along the badge's own width axis.
-    rope.side.set(0.115,0,0).applyQuaternion(group.current.quaternion);
-    a.setXYZ(64,rope.end.x-rope.side.x,rope.end.y-rope.side.y,rope.end.z-rope.side.z);
-    a.setXYZ(65,rope.end.x+rope.side.x,rope.end.y+rope.side.y,rope.end.z+rope.side.z);
+    rope.side.set(0.115, 0, 0).applyQuaternion(group.current.quaternion);
+    a.setXYZ(
+      64,
+      rope.end.x - rope.side.x,
+      rope.end.y - rope.side.y,
+      rope.end.z - rope.side.z,
+    );
+    a.setXYZ(
+      65,
+      rope.end.x + rope.side.x,
+      rope.end.y + rope.side.y,
+      rope.end.z + rope.side.z,
+    );
     a.needsUpdate = true;
     strip.computeVertexNormals();
     strip.computeBoundingSphere();
@@ -417,8 +476,27 @@ function Badge({ flipped, setFlipped, reduced }) {
           invalidate();
         }}
       >
-        <RoundedBox args={[0.29,0.20,0.11]} radius={0.025} smoothness={3} position={[0,1.60,0.035]}><meshStandardMaterial color="#aeb7c0" metalness={0.65} roughness={0.24}/></RoundedBox>
-        <mesh geometry={clasp}><meshStandardMaterial color="#d3dbe2" metalness={0.65} roughness={0.19}/></mesh>
+        <RoundedBox
+          args={[0.29, 0.2, 0.11]}
+          radius={0.025}
+          smoothness={3}
+          position={[0, 1.6, 0.035]}
+        >
+          <meshStandardMaterial
+            color="#aeb7c0"
+            metalness={1}
+            roughness={0.12}
+            envMapIntensity={2}
+          />
+        </RoundedBox>
+        <mesh geometry={clasp}>
+          <meshStandardMaterial
+            color="#d3dbe2"
+            metalness={1}
+            roughness={0.1}
+            envMapIntensity={2}
+          />
+        </mesh>
         <RoundedBox args={[1.85, 2.6, 0.1]} radius={0.095} smoothness={4}>
           <meshStandardMaterial
             color="#22252b"
@@ -437,6 +515,23 @@ function Badge({ flipped, setFlipped, reduced }) {
       </group>
     </>
   );
+}
+function StudioEnvironment() {
+  const { gl, scene } = useThree();
+  useEffect(() => {
+    const pmrem = new THREE.PMREMGenerator(gl);
+    const room = new RoomEnvironment();
+    const target = pmrem.fromScene(room, 0.04);
+    const previous = scene.environment;
+    scene.environment = target.texture;
+    room.dispose();
+    pmrem.dispose();
+    return () => {
+      scene.environment = previous;
+      target.dispose();
+    };
+  }, [gl, scene]);
+  return null;
 }
 export default function LanyardScene() {
   const [flipped, setFlipped] = useState(false),
@@ -463,6 +558,7 @@ export default function LanyardScene() {
         frameloop={visible ? (reduced ? "demand" : "always") : "never"}
         gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
       >
+        <StudioEnvironment />
         <ambientLight intensity={1.7} />
         <directionalLight position={[3, 5, 5]} intensity={2.8} />
         <Suspense fallback={null}>

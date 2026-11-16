@@ -61,6 +61,100 @@ const education = [
   ],
   ["MS", "Matriculation", "Secondary Education", "2014", "840/1100 · 76.36%"],
 ];
+const services = [
+  "Web Design & Development",
+  "Custom Website Solutions",
+  "SEO Optimization",
+  "AI Agents & Automation",
+  "Mobile Apps",
+];
+function ServicesMarquee() {
+  return (
+    <div className="services-band">
+      <div
+        className="marquee"
+        tabIndex={0}
+        aria-label="Services. Pause scrolling on hover or focus."
+      >
+        <div className="marquee-track">
+          {[0, 1].map((copy) => (
+            <div
+              className="marquee-group"
+              key={copy}
+              aria-hidden={copy === 1 ? true : undefined}
+            >
+              {services.map((service) => (
+                <span className="service-item" key={service}>
+                  {service}
+                  <span aria-hidden="true">✳</span>
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+function Counters() {
+  const reduced = useReducedMotion();
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    let frame;
+    const el = document.getElementById("career-counters");
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        observer.disconnect();
+        if (reduced) {
+          setProgress(1);
+          return;
+        }
+        let start;
+        const tick = (time) => {
+          start ??= time;
+          const p = Math.min((time - start) / 1400, 1);
+          setProgress(1 - Math.pow(1 - p, 3));
+          if (p < 1) frame = requestAnimationFrame(tick);
+        };
+        frame = requestAnimationFrame(tick);
+      },
+      { threshold: 0.25 },
+    );
+    if (el) observer.observe(el);
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(frame);
+    };
+  }, [reduced]);
+  return (
+    <div id="career-counters" className="career-counters">
+      {[
+        [6, "+", "Years of", "Experience"],
+        [100, "+", "Projects", "Completed"],
+        [200, "+", "Happy", "Clients"],
+        [2, "", "Awards", "Received"],
+      ].map(([number, suffix, a, b]) => (
+        <div
+          className="career-counter"
+          key={a}
+          aria-label={number + suffix + " " + a + " " + b}
+        >
+          <strong aria-hidden="true">
+            {Math.round(number * progress)}
+            {suffix}
+          </strong>
+          <span aria-hidden="true">
+            {a}
+            <br />
+            {b}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function Reveal({ children, className = "" }) {
   const reduced = useReducedMotion();
   return (
@@ -78,7 +172,10 @@ function Reveal({ children, className = "" }) {
 function Socials({ cards = false }) {
   return (
     <div className={`social-links${cards ? " social-cards" : ""}`}>
-      {socials.map(([name, url]) => (
+      {(cards
+        ? [...socials, ["Email", "mailto:wazahahmad4@gmail.com"]]
+        : socials
+      ).map(([name, url]) => (
         <a
           key={name}
           aria-label={name}
@@ -87,12 +184,25 @@ function Socials({ cards = false }) {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <Icon name={name === "GitHub" ? "github" : "linkedin"} size={19} />
+          <Icon
+            name={
+              name === "GitHub"
+                ? "github"
+                : name === "Email"
+                  ? "mail"
+                  : "linkedin"
+            }
+            size={19}
+          />
           <span className="social-name">
             {name}
             {cards && (
               <small>
-                {name === "GitHub" ? "@wazahahmad" : "/in/wazahahmad"}
+                {name === "GitHub"
+                  ? "@wazahahmad"
+                  : name === "Email"
+                    ? "wazahahmad4@gmail.com"
+                    : "/in/wazahahmad"}
               </small>
             )}
           </span>
@@ -105,7 +215,6 @@ function Socials({ cards = false }) {
 export default function PortfolioClient() {
   const [menu, setMenu] = useState(false),
     [active, setActive] = useState("home"),
-    [tab, setTab] = useState("Projects"),
     [ready, setReady] = useState(false),
     [role, setRole] = useState("Senior Developer");
   const reduced = useReducedMotion();
@@ -140,7 +249,12 @@ export default function PortfolioClient() {
     const obs = new IntersectionObserver(
       (entries) =>
         entries.forEach((e) => {
-          if (e.isIntersecting) setActive(e.target.id);
+          if (e.isIntersecting)
+            setActive(
+              ["tech-stack", "testimonials"].includes(e.target.id)
+                ? "portfolio"
+                : e.target.id,
+            );
         }),
       { rootMargin: "-25% 0px -50% 0px" },
     );
@@ -276,6 +390,7 @@ export default function PortfolioClient() {
           SCROLL TO EXPLORE <span>↓</span>
         </a>
       </section>
+      <ServicesMarquee />
       <section id="about" className="shell section">
         <Reveal>
           <div className="section-title">
@@ -331,6 +446,7 @@ export default function PortfolioClient() {
             </a>
           </Reveal>
         </div>
+        <Counters />
         <div className="timeline-columns">
           {[
             ["Education", education],
@@ -350,12 +466,10 @@ export default function PortfolioClient() {
                 {items.map(([mark, name, title, date, description]) => (
                   <article className="timeline-item" key={name}>
                     <MetalBorder />
-                    <div className="timeline-mark">{mark}</div>
                     <div>
                       <h4>{name}</h4>
                       <p>{title}</p>
                       <span className="timeline-date">{date}</span>
-                      {heading === "Education" && <small>{description}</small>}
                     </div>
                   </article>
                 ))}
@@ -363,35 +477,6 @@ export default function PortfolioClient() {
             </Reveal>
           ))}
         </div>
-        <Reveal className="stats">
-          {[
-            [
-              "briefcase",
-              "6+",
-              "Years Experience",
-              "Agency and freelance development",
-            ],
-            ["code", "3", "Sample Projects", "A preview of the work I build"],
-            [
-              "cpu",
-              "3",
-              "Professional Roles",
-              "Across agencies and independent work",
-            ],
-          ].map(([icon, count, title, description]) => (
-            <div key={title}>
-              <MetalBorder />
-              <div className="stat-top">
-                <span>
-                  <Icon name={icon} size={25} />
-                </span>
-                <strong>{count}</strong>
-              </div>
-              <h4>{title}</h4>
-              <p>{description}</p>
-            </div>
-          ))}
-        </Reveal>
       </section>
       <section id="portfolio" className="shell section">
         <Reveal>
@@ -400,90 +485,115 @@ export default function PortfolioClient() {
             <h2>Portfolio</h2>
             <p>A glimpse of what I build.</p>
           </div>
-          <div
-            className="portfolio-tabs"
-            role="tablist"
-            aria-label="Portfolio categories"
-          >
-            {["Projects", "Tech Stack"].map((t) => (
-              <button
-                key={t}
-                role="tab"
-                id={`tab-${t.replace(" ", "-")}`}
-                aria-selected={tab === t}
-                aria-controls="portfolio-panel"
-                className={tab === t ? "selected" : ""}
-                onClick={() => {
-                  setTab(t);
-                }}
-              >
-                <Icon name={t === "Projects" ? "code" : "cpu"} size={22} /> {t}
-              </button>
-            ))}
+        </Reveal>
+        <p className="sample-label">CONCEPT SHOWCASE · SAMPLE PROJECTS</p>
+        <div className="project-grid">
+          {projects.map((p, i) => (
+            <Reveal key={p.slug}>
+              <article className="project-card">
+                <MetalBorder />
+                <Link
+                  href={`/projects/${p.slug}`}
+                  className="project-image"
+                  aria-label={`View ${p.title}`}
+                >
+                  <Image
+                    src={p.image}
+                    alt={`${p.title} sample preview`}
+                    fill
+                    sizes="(max-width: 650px) 90vw, (max-width: 1000px) 45vw, 360px"
+                  />
+                  <span>0{i + 1} / CONCEPT</span>
+                </Link>
+                <div className="project-content">
+                  <h3>{p.title}</h3>
+                  <p>{p.summary}</p>
+                  <div className="tags">
+                    {p.tags.slice(0, 2).map((t) => (
+                      <span key={t}>{t}</span>
+                    ))}
+                  </div>
+                  <Link
+                    className="project-details"
+                    href={`/projects/${p.slug}`}
+                  >
+                    Details <Icon name="arrow" size={18} />
+                  </Link>
+                </div>
+              </article>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+      <section id="tech-stack" className="section tech-section">
+        <Reveal>
+          <div className="section-title">
+            <span className="eyebrow">MY TOOLKIT</span>
+            <h2>Tech Stack</h2>
+            <p>The tools behind the work.</p>
           </div>
         </Reveal>
         <div
-          id="portfolio-panel"
-          role="tabpanel"
-          aria-labelledby={`tab-${tab.replace(" ", "-")}`}
+          className="marquee tech-marquee"
           tabIndex={0}
+          aria-label="Technology stack. Pause scrolling on hover or focus."
         >
-          {tab === "Projects" ? (
-            <>
-              <p className="sample-label">CONCEPT SHOWCASE · SAMPLE PROJECTS</p>
-              <div className="project-grid">
-                {projects.map((p, i) => (
-                  <Reveal key={p.slug}>
-                    <article className="project-card">
-                      <MetalBorder />
-                      <Link
-                        href={`/projects/${p.slug}`}
-                        className="project-image"
-                        aria-label={`View ${p.title}`}
-                      >
-                        <Image
-                          src={p.image}
-                          alt={`${p.title} sample preview`}
-                          fill
-                          sizes="(max-width: 650px) 90vw, (max-width: 1000px) 45vw, 360px"
-                        />
-                        <span>0{i + 1} / CONCEPT</span>
-                      </Link>
-                      <div className="project-content">
-                        <h3>{p.title}</h3>
-                        <p>{p.summary}</p>
-                        <div className="tags">
-                          {p.tags.slice(0, 2).map((t) => (
-                            <span key={t}>{t}</span>
-                          ))}
-                        </div>
-                        <Link
-                          className="project-details"
-                          href={`/projects/${p.slug}`}
-                        >
-                          Details <Icon name="arrow" size={18} />
-                        </Link>
-                      </div>
-                    </article>
-                  </Reveal>
+          <div className="marquee-track">
+            {[0, 1].map((copy) => (
+              <div
+                className="marquee-group"
+                key={copy}
+                aria-hidden={copy === 1 ? true : undefined}
+              >
+                {techStack.map((s) => (
+                  <div className="skill" key={s.name}>
+                    <Image
+                      src={s.icon}
+                      alt=""
+                      width={58}
+                      height={58}
+                      unoptimized
+                    />
+                    <h3>{s.name}</h3>
+                  </div>
                 ))}
               </div>
-            </>
-          ) : (
-            <div className="skills-grid">
-              {techStack.map((s) => (
-                <div className="skill" key={s.name}>
-                  <Image
-                    src={s.icon}
-                    alt=""
-                    width={58}
-                    height={58}
-                    unoptimized
-                  />
-                  <h3>{s.name}</h3>
-                </div>
-              ))}
-            </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      <section className="shell section testimonials" id="testimonials">
+        <Reveal>
+          <div className="section-title">
+            <span className="eyebrow">CLIENT EXPERIENCES</span>
+            <h2>Kind Words</h2>
+            <p>A space for the people I build with.</p>
+          </div>
+        </Reveal>
+        <div className="testimonial-grid">
+          {["Website development", "Custom solutions", "Automation"].map(
+            (service, i) => (
+              <Reveal key={service}>
+                <article className="testimonial-card">
+                  <MetalBorder />
+                  <span className="quote-mark" aria-hidden="true">
+                    “
+                  </span>
+                  <span className="sample-label">SAMPLE TESTIMONIAL</span>
+                  <p>
+                    Customer feedback for {service.toLowerCase()} will appear
+                    here. This is a preview, ready for a real client’s words.
+                  </p>
+                  <div className="testimonial-person">
+                    <span>{String(i + 1).padStart(2, "0")}</span>
+                    <div>
+                      <strong>Your client’s name</strong>
+                      <small>{service}</small>
+                    </div>
+                  </div>
+                </article>
+              </Reveal>
+            ),
           )}
         </div>
       </section>
@@ -566,9 +676,6 @@ export default function PortfolioClient() {
               <div className="contact-socials">
                 <h4>FIND ME</h4>
                 <Socials cards />
-                <a className="direct-email" href="mailto:wazahahmad4@gmail.com">
-                  wazahahmad4@gmail.com
-                </a>
               </div>
             </div>
           </Reveal>
