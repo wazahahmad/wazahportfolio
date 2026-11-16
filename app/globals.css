@@ -2910,3 +2910,38 @@ body {
 .portrait-iron {
   object-position: 50% 100% !important;
 }
+@media (min-width: 1101px) {
+  .portrait-column {
+    left: 50%;
+    margin-left: -259px;
+    transform: none;
+  }
+}
+@media (min-width: 761px) and (max-width: 1100px) {
+  .portrait-column {
+    left: 50%;
+    margin-left: -230px;
+    transform: none;
+  }
+}
+@media (max-width: 760px) {
+  .portrait-column {
+    left: auto;
+    margin-left: 0;
+    transform: none;
+  }
+}
+@media (min-width: 761px) {
+  .hero-card .lanyard-controls {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .hero-card:focus-within .lanyard-controls {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+.social-cards .social-name {
+  color: #eef3ff;
+}

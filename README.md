@@ -14,7 +14,7 @@ Run `npm install`, then `npm run dev`. Production: `npm run build` and `npm run 
 - Optimized transparent portrait: `public/images/portrait.webp` (generated cutout, WebP with alpha).
 - Original supplied LinkedIn QR: `public/images/linkedin-qr.gif`.
 - Contact form opens a mail composer; it does not silently send or store messages. A hosted form provider can be connected later.
-- About hover uses the user-supplied Iron Man image (`public/images/portrait-iron.webp`). The supplied removebg-preview PNG is encoded losslessly with transparency. Hover and tap crossfade between the two portraits.
+- About hover uses the user-supplied Iron Man image (`public/images/portrait-iron-3x.webp`). The supplied removebg-preview PNG is encoded losslessly with transparency. Hover and tap crossfade between the two portraits.
 
 ## Image provenance
 
@@ -32,3 +32,5 @@ The layout now uses local Inter, a compact desktop navigation pill, brighter sta
 The badge now uses public/images/card-portrait.webp, encoded losslessly from the exact supplied exec-0090fd11-e439-40a8-98bf-4733a8274902.png cutout. The original image dimensions and alpha are preserved. Badge framing is applied only in the rendered canvas; the source asset is unchanged.
 
 The ribbon now uses a 17-node constrained simulation. Its bottom node is pinned to the transformed top of the badge clip each frame; printed Wazah Ahmad lettering repeats along the fabric. Project borders use Paper LiquidMetal with the reference parameters; technology tiles use the reference conic edge sweep and pointer direction. Both effects respect reduced motion; shader rendering pauses offscreen.
+
+At the user’s explicit request, the supplied transparent Iron Man cutout was enlarged 3× with Lanczos3 interpolation to 1128 × 1992 after the AI upscale service rejected the request. No generative detail was added. The PNG master is public/images/iron-man-3x.png; the site uses a lossless WebP version.

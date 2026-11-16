@@ -319,7 +319,7 @@ export default function PortfolioClient() {
               />
               <Image
                 className="portrait-iron"
-                src="/images/portrait-iron.webp"
+                src="/images/portrait-iron-3x.webp"
                 alt=""
                 fill
                 sizes="(max-width: 760px) 85vw, 380px"
