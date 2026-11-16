@@ -286,7 +286,7 @@ function Badge({ flipped, setFlipped, reduced }) {
     }
 
     // Pin the final fabric node to the actual transformed top of the metal clip.
-    rope.end.set(0, 1.67, 0).applyQuaternion(group.current.quaternion).add(p);
+    rope.end.set(0, 1.68, 0).applyQuaternion(group.current.quaternion).add(p);
     const nodes = rope.nodes,
       previous = rope.previous,
       n = nodes.length - 1;
@@ -343,6 +343,10 @@ function Badge({ flipped, setFlipped, reduced }) {
         rope.point.z - 0.006,
       );
     }
+    // The fabric enters the crimp along the badge's own width axis.
+    rope.side.set(0.115,0,0).applyQuaternion(group.current.quaternion);
+    a.setXYZ(64,rope.end.x-rope.side.x,rope.end.y-rope.side.y,rope.end.z-rope.side.z);
+    a.setXYZ(65,rope.end.x+rope.side.x,rope.end.y+rope.side.y,rope.end.z+rope.side.z);
     a.needsUpdate = true;
     strip.computeVertexNormals();
     strip.computeBoundingSphere();
@@ -398,11 +402,11 @@ function Badge({ flipped, setFlipped, reduced }) {
           );
           temp
             .copy(drag.current.target)
-            .add(new THREE.Vector3(0, 1.67, 0))
+            .add(new THREE.Vector3(0, 1.68, 0))
             .sub(rope.anchor)
             .clampLength(0, rope.length - 0.03)
             .add(rope.anchor)
-            .sub(new THREE.Vector3(0, 1.67, 0));
+            .sub(new THREE.Vector3(0, 1.68, 0));
           drag.current.target.copy(temp);
           invalidate();
         }}
@@ -412,22 +416,8 @@ function Badge({ flipped, setFlipped, reduced }) {
           invalidate();
         }}
       >
-        <mesh position={[0, 1.56, 0]}>
-          <boxGeometry args={[0.29, 0.22, 0.09]} />
-          <meshStandardMaterial
-            color="#aeb6be"
-            metalness={0.55}
-            roughness={0.25}
-          />
-        </mesh>
-        <mesh position={[0, 1.3, 0]}>
-          <torusGeometry args={[0.13, 0.035, 12, 32]} />
-          <meshStandardMaterial
-            color="#bccde6"
-            metalness={0.9}
-            roughness={0.2}
-          />
-        </mesh>
+        <RoundedBox args={[0.29,0.20,0.11]} radius={0.025} smoothness={3} position={[0,1.60,0.035]}><meshStandardMaterial color="#aeb7c0" metalness={0.65} roughness={0.24}/></RoundedBox>
+        <mesh position={[0,1.31,0.10]} scale={[0.65,1.25,1]}><torusGeometry args={[0.16,0.025,16,48]}/><meshStandardMaterial color="#d3dbe2" metalness={0.65} roughness={0.19}/></mesh>
         <RoundedBox args={[1.85, 2.6, 0.1]} radius={0.095} smoothness={4}>
           <meshStandardMaterial
             color="#22252b"
