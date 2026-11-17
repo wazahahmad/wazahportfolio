@@ -22,7 +22,7 @@ export default async function ProjectPage({ params }) {
         <Link href="/#portfolio">← All projects</Link>
       </nav>
       <div className="detail-heading">
-        <span className="eyebrow">CONCEPT PROJECT · SAMPLE CONTENT</span>
+        <span className="eyebrow">{p.category.toUpperCase()}</span>
         <h1>{p.title}</h1>
         <p>{p.summary}</p>
         <div className="tags">
@@ -31,33 +31,43 @@ export default async function ProjectPage({ params }) {
           ))}
         </div>
       </div>
-      <div className="detail-image">
+      <div
+        className={`detail-image${p.slug === "la-citadelle" ? " detail-image-mobile" : ""}`}
+      >
         <Image
           src={p.image}
-          alt={`${p.title} concept preview`}
+          alt={`${p.title} website screenshot`}
+          width={p.imageWidth}
+          height={p.imageHeight}
           priority
           sizes="(max-width: 800px) 100vw, 1100px"
         />
       </div>
       <div className="detail-columns">
         <article>
-          <span className="eyebrow">01 / THE CHALLENGE</span>
-          <h2>A clear purpose.</h2>
+          <span className="eyebrow">01 / THE EXPERIENCE</span>
+          <h2>Project overview.</h2>
           <p>{p.challenge}</p>
         </article>
         <article>
-          <span className="eyebrow">02 / THE APPROACH</span>
-          <h2>Built with care.</h2>
+          <span className="eyebrow">02 / THE DETAILS</span>
+          <h2>Experience highlights.</h2>
           <p>{p.approach}</p>
         </article>
       </div>
-      <aside className="sample-note">
-        This is sample portfolio content. Final project information and results
-        will be added later.
-      </aside>
-      <Link className="button primary" href="/#contact">
-        Discuss a project ↗
-      </Link>
+      <div className="detail-actions">
+        <a
+          className="button primary"
+          href={p.url}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Visit website ↗
+        </a>
+        <Link className="button secondary" href="/#contact">
+          Discuss a project ↗
+        </Link>
+      </div>
       <footer>© {new Date().getFullYear()} Wazah Ahmad</footer>
     </main>
   );

@@ -6,8 +6,10 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import Icon from "./icon";
 import MetalBorder from "./metal-border";
+import ContactForm from "./contact-form";
 import { techStack } from "../lib/tech-stack";
 import { projects } from "../lib/projects";
+import { testimonials } from "../lib/testimonials";
 const Lanyard = dynamic(() => import("./lanyard-scene"), {
   ssr: false,
   loading: () => (
@@ -155,15 +157,19 @@ function Counters() {
   );
 }
 
-function Reveal({ children, className = "" }) {
+function Reveal({ children, className = "", delay = 0 }) {
   const reduced = useReducedMotion();
   return (
     <motion.div
       className={className}
-      initial={reduced ? false : { opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.12 }}
-      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      initial={reduced ? false : { opacity: 0, y: 42, filter: "blur(5px)" }}
+      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      viewport={{ once: true, amount: 0.15, margin: "0px 0px -35px 0px" }}
+      transition={{
+        duration: 0.75,
+        delay: reduced ? 0 : delay,
+        ease: [0.22, 1, 0.36, 1],
+      }}
     >
       {children}
     </motion.div>
@@ -486,24 +492,26 @@ export default function PortfolioClient() {
             <p>A glimpse of what I build.</p>
           </div>
         </Reveal>
-        <p className="sample-label">CONCEPT SHOWCASE · SAMPLE PROJECTS</p>
+        <p className="sample-label">SELECTED WORK · WEBSITES & EXPERIENCES</p>
         <div className="project-grid">
           {projects.map((p, i) => (
-            <Reveal key={p.slug}>
+            <Reveal key={p.slug} delay={(i % 3) * 0.09}>
               <article className="project-card">
                 <MetalBorder />
                 <Link
                   href={`/projects/${p.slug}`}
-                  className="project-image"
+                  className={`project-image${p.slug === "la-citadelle" ? " project-image-mobile" : ""}`}
                   aria-label={`View ${p.title}`}
                 >
                   <Image
                     src={p.image}
-                    alt={`${p.title} sample preview`}
+                    alt={`${p.title} website preview`}
                     fill
                     sizes="(max-width: 650px) 90vw, (max-width: 1000px) 45vw, 360px"
                   />
-                  <span>0{i + 1} / CONCEPT</span>
+                  <span>
+                    0{i + 1} / {p.category}
+                  </span>
                 </Link>
                 <div className="project-content">
                   <h3>{p.title}</h3>
@@ -567,34 +575,41 @@ export default function PortfolioClient() {
           <div className="section-title">
             <span className="eyebrow">CLIENT EXPERIENCES</span>
             <h2>Kind Words</h2>
-            <p>A space for the people I build with.</p>
+            <p>Feedback from clients on Fiverr.</p>
           </div>
         </Reveal>
         <div className="testimonial-grid">
-          {["Website development", "Custom solutions", "Automation"].map(
-            (service, i) => (
-              <Reveal key={service}>
-                <article className="testimonial-card">
-                  <MetalBorder />
-                  <span className="quote-mark" aria-hidden="true">
-                    “
+          {testimonials.map((review, i) => (
+            <Reveal key={review.name} delay={i * 0.1}>
+              <article className="testimonial-card">
+                <MetalBorder />
+                <span className="quote-mark" aria-hidden="true">
+                  “
+                </span>
+                <div className="review-stars" aria-label="5 out of 5 stars">
+                  ★★★★★
+                </div>
+                <blockquote>{review.quote}</blockquote>
+                <div className="testimonial-person">
+                  <span aria-hidden="true">
+                    {review.name.slice(0, 1).toUpperCase()}
                   </span>
-                  <span className="sample-label">SAMPLE TESTIMONIAL</span>
-                  <p>
-                    Customer feedback for {service.toLowerCase()} will appear
-                    here. This is a preview, ready for a real client’s words.
-                  </p>
-                  <div className="testimonial-person">
-                    <span>{String(i + 1).padStart(2, "0")}</span>
-                    <div>
-                      <strong>Your client’s name</strong>
-                      <small>{service}</small>
-                    </div>
+                  <div>
+                    <strong>{review.name}</strong>
+                    <small>{review.country} · Fiverr</small>
                   </div>
-                </article>
-              </Reveal>
-            ),
-          )}
+                </div>
+                <a
+                  className="review-source"
+                  href={review.source}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Read on Fiverr <Icon name="arrow" size={14} />
+                </a>
+              </article>
+            </Reveal>
+          ))}
         </div>
       </section>
       <section id="contact" className="shell section">
@@ -617,61 +632,7 @@ export default function PortfolioClient() {
                   For a project, a collaboration, or a quick hello — I’d love to
                   hear from you.
                 </p>
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    const d = new FormData(e.currentTarget);
-                    window.location.href = `mailto:wazahahmad4@gmail.com?subject=${encodeURIComponent("Website enquiry from " + d.get("name"))}&body=${encodeURIComponent(d.get("message") + "\n\nFrom: " + d.get("name") + "\nEmail: " + d.get("email"))}`;
-                  }}
-                >
-                  <label>
-                    Your name
-                    <span className="input-wrap">
-                      <Icon name="user" size={16} />
-                      <input
-                        name="name"
-                        placeholder="What should I call you?"
-                        autoComplete="name"
-                        required
-                        maxLength={100}
-                      />
-                    </span>
-                  </label>
-                  <label>
-                    Email address
-                    <span className="input-wrap">
-                      <Icon name="mail" size={16} />
-                      <input
-                        name="email"
-                        type="email"
-                        placeholder="you@example.com"
-                        autoComplete="email"
-                        required
-                        maxLength={200}
-                      />
-                    </span>
-                  </label>
-                  <label>
-                    Message
-                    <span className="input-wrap">
-                      <Icon name="message" size={16} />
-                      <textarea
-                        name="message"
-                        placeholder="Tell me a little about your idea…"
-                        rows={5}
-                        required
-                        maxLength={5000}
-                      />
-                    </span>
-                  </label>
-                  <button className="button primary" type="submit">
-                    <Icon name="send" size={17} />
-                    Compose email
-                  </button>
-                  <small className="form-note">
-                    Opens your email app with your message ready to send.
-                  </small>
-                </form>
+                <ContactForm />
               </div>
               <div className="contact-socials">
                 <h4>FIND ME</h4>

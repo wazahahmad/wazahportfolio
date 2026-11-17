@@ -228,25 +228,7 @@ function Badge({ flipped, setFlipped, reduced }) {
   );
   useEffect(() => () => faces.forEach((t) => t.dispose()), [faces]);
   const bandTexture = useMemo(strapTexture, []);
-  const clasp = useMemo(
-    () =>
-      new THREE.TubeGeometry(
-        new THREE.CatmullRomCurve3([
-          new THREE.Vector3(-0.015, 1.51, 0.055),
-          new THREE.Vector3(0.065, 1.48, 0.11),
-          new THREE.Vector3(0.07, 1.37, 0.14),
-          new THREE.Vector3(0.02, 1.25, 0.14),
-          new THREE.Vector3(-0.065, 1.14, 0.1),
-          new THREE.Vector3(-0.115, 1.2, 0.075),
-          new THREE.Vector3(-0.09, 1.29, 0.065),
-        ]),
-        48,
-        0.024,
-        12,
-        false,
-      ),
-    [],
-  );
+  const clasp = useMemo(() => new THREE.TorusGeometry(0.18, 0.024, 16, 64), []);
   useEffect(() => () => clasp.dispose(), [clasp]);
   useEffect(() => () => bandTexture.dispose(), [bandTexture]);
   const strip = useMemo(() => {
@@ -470,7 +452,7 @@ function Badge({ flipped, setFlipped, reduced }) {
             envMapIntensity={2}
           />
         </RoundedBox>
-        <mesh geometry={clasp}>
+        <mesh geometry={clasp} position={[0, 1.32, 0.075]}>
           <meshStandardMaterial
             color="#d3dbe2"
             metalness={1}
