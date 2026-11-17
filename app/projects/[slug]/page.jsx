@@ -6,7 +6,11 @@ import { projects } from "../../../lib/projects";
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const p = projects.find((x) => x.slug === slug);
-  return { title: p ? `${p.title} — Wazah Ahmad` : "Project not found" };
+  return {
+    title: p ? `${p.title} — Wazah Ahmad` : "Project not found",
+    description: p?.summary,
+    alternates: p ? { canonical: `/projects/${p.slug}` } : undefined,
+  };
 }
 export default async function ProjectPage({ params }) {
   await connection();

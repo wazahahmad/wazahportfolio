@@ -3,16 +3,19 @@ export const metadata = {
   title: "Wazah Ahmad — Senior Web Developer",
   description:
     "Senior web developer in Gujranwala, Pakistan. 6+ years building WordPress, PHP, Laravel websites and practical AI automations.",
+  alternates: { canonical: "/" },
   metadataBase: new URL("https://wazahahmad.vercel.app"),
   twitter: {
     card: "summary_large_image",
     title: "Wazah Ahmad — Senior Web Developer",
-    description: "Websites, commerce, and automations built with care.",
+    description:
+      "Explore Wazah Ahmad’s portfolio: WordPress and custom websites, e-commerce experiences, and practical AI automations built with care.",
     images: ["/opengraph-image"],
   },
   openGraph: {
     title: "Wazah Ahmad — Senior Web Developer",
-    description: "Websites, commerce, and automations built with care.",
+    description:
+      "Explore Wazah Ahmad’s portfolio: WordPress and custom websites, e-commerce experiences, and practical AI automations built with care.",
     url: "https://wazahahmad.vercel.app",
     type: "website",
     siteName: "Wazah Ahmad",
