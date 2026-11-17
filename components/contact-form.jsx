@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef } from "react";
 import Icon from "./icon";
-const configuredId = process.env.NEXT_PUBLIC_FORMSPREE_ID || "";
+const configuredId = process.env.NEXT_PUBLIC_FORMSPREE_ID || "mnpddjpd";
 const formId = /^[a-z0-9]{6,32}$/i.test(configuredId) ? configuredId : "";
 export default function ContactForm() {
   const [status, setStatus] = useState("idle");
@@ -11,6 +11,7 @@ export default function ContactForm() {
     if (busy.current) return;
     const form = event.currentTarget;
     const data = new FormData(form);
+    data.set("_subject", "Portfolio enquiry from " + data.get("name"));
     if (!formId) {
       window.location.href = `mailto:wazahahmad4@gmail.com?subject=${encodeURIComponent("Website enquiry from " + data.get("name"))}&body=${encodeURIComponent(data.get("message") + "\n\nFrom: " + data.get("name") + "\nEmail: " + data.get("email"))}`;
       return;
