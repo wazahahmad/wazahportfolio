@@ -7,6 +7,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import Icon from "./icon";
 import MetalBorder from "./metal-border";
 import ContactForm from "./contact-form";
+import Preloader from "./preloader";
 import { techStack } from "../lib/tech-stack";
 import { projects } from "../lib/projects";
 import { testimonials } from "../lib/testimonials";
@@ -225,6 +226,16 @@ export default function PortfolioClient() {
     [role, setRole] = useState("Senior Developer");
   const reduced = useReducedMotion();
   useEffect(() => {
+    const sync = () =>
+      document.documentElement.classList.toggle("page-hidden", document.hidden);
+    sync();
+    document.addEventListener("visibilitychange", sync);
+    return () => {
+      document.removeEventListener("visibilitychange", sync);
+      document.documentElement.classList.remove("page-hidden");
+    };
+  }, []);
+  useEffect(() => {
     const root = document.querySelector(".portfolio-site");
     if (!root) return;
     let frame = 0;
@@ -251,7 +262,11 @@ export default function PortfolioClient() {
     };
   }, []);
   useEffect(() => {
-    const timer = setTimeout(() => setReady(true), 250);
+    const idle = window.requestIdleCallback?.(() => setReady(true), {
+      timeout: 300,
+    });
+    const timer =
+      idle === undefined ? setTimeout(() => setReady(true), 0) : undefined;
     const obs = new IntersectionObserver(
       (entries) =>
         entries.forEach((e) => {
@@ -267,6 +282,7 @@ export default function PortfolioClient() {
     document.querySelectorAll("section[id]").forEach((el) => obs.observe(el));
     return () => {
       clearTimeout(timer);
+      if (idle !== undefined) window.cancelIdleCallback(idle);
       obs.disconnect();
     };
   }, []);
@@ -306,6 +322,7 @@ export default function PortfolioClient() {
   }, [reduced]);
   return (
     <main className="portfolio-site">
+      <Preloader />
       <div className="space-bg" aria-hidden="true">
         <div className="stars" />
         <div className="star-points">
@@ -322,7 +339,20 @@ export default function PortfolioClient() {
             />
           ))}
         </div>
-        <div className="shooting-star" />
+        <div className="shooting-stars">
+          {Array.from({ length: 6 }, (_, i) => (
+            <i
+              key={i}
+              className="shooting-star"
+              style={{
+                left: `${8 + ((i * 23) % 85)}%`,
+                top: `${(i * 19) % 70}%`,
+                animationDelay: `${-i * 2.7}s`,
+                animationDuration: `${8 + i * 0.85}s`,
+              }}
+            />
+          ))}
+        </div>
         <div className="nebula" />
       </div>
       <header className="header-wrap">

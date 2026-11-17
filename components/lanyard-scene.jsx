@@ -149,10 +149,12 @@ function faceTexture(photo, qr, back) {
       x.stroke();
     }
   }
-  x.fillStyle = "#090e17";
+  x.save();
+  x.globalCompositeOperation = "destination-out";
   x.beginPath();
   x.roundRect(373, 30, 214, 42, 20);
   x.fill();
+  x.restore();
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
   t.anisotropy = 8;
@@ -227,8 +229,44 @@ function Badge({ flipped, setFlipped, reduced }) {
     [photo, qr, fontReady],
   );
   useEffect(() => () => faces.forEach((t) => t.dispose()), [faces]);
+  const cardBody = useMemo(() => {
+    const shape = new THREE.Shape();
+    const w = 0.925,
+      h = 1.3,
+      r = 0.095;
+    shape.moveTo(-w + r, -h);
+    shape.lineTo(w - r, -h);
+    shape.quadraticCurveTo(w, -h, w, -h + r);
+    shape.lineTo(w, h - r);
+    shape.quadraticCurveTo(w, h, w - r, h);
+    shape.lineTo(-w + r, h);
+    shape.quadraticCurveTo(-w, h, -w, h - r);
+    shape.lineTo(-w, -h + r);
+    shape.quadraticCurveTo(-w, -h, -w + r, -h);
+    const hole = new THREE.Path();
+    const y = 1.128,
+      rad = 0.038,
+      half = 0.155;
+    hole.moveTo(-half, y + rad);
+    hole.lineTo(half, y + rad);
+    hole.absarc(half, y, rad, Math.PI / 2, -Math.PI / 2, true);
+    hole.lineTo(-half, y - rad);
+    hole.absarc(-half, y, rad, -Math.PI / 2, -Math.PI * 1.5, true);
+    shape.holes.push(hole);
+    const geometry = new THREE.ExtrudeGeometry(shape, {
+      depth: 0.1,
+      bevelEnabled: false,
+      curveSegments: 12,
+    });
+    geometry.translate(0, 0, -0.05);
+    return geometry;
+  }, []);
+  useEffect(() => () => cardBody.dispose(), [cardBody]);
   const bandTexture = useMemo(strapTexture, []);
-  const clasp = useMemo(() => new THREE.TorusGeometry(0.18, 0.024, 16, 64), []);
+  const clasp = useMemo(
+    () => new THREE.TorusGeometry(0.207, 0.024, 16, 64),
+    [],
+  );
   useEffect(() => () => clasp.dispose(), [clasp]);
   useEffect(() => () => bandTexture.dispose(), [bandTexture]);
   const strip = useMemo(() => {
@@ -452,7 +490,7 @@ function Badge({ flipped, setFlipped, reduced }) {
             envMapIntensity={2}
           />
         </RoundedBox>
-        <mesh geometry={clasp} position={[0, 1.32, 0.075]}>
+        <mesh geometry={clasp} position={[0, 1.33, 0]} rotation={[0.23, 0, 0]}>
           <meshStandardMaterial
             color="#d3dbe2"
             metalness={1}
@@ -460,20 +498,28 @@ function Badge({ flipped, setFlipped, reduced }) {
             envMapIntensity={2}
           />
         </mesh>
-        <RoundedBox args={[1.85, 2.6, 0.1]} radius={0.095} smoothness={4}>
+        <mesh geometry={cardBody}>
           <meshStandardMaterial
             color="#22252b"
             metalness={0.4}
             roughness={0.3}
           />
-        </RoundedBox>
+        </mesh>
         <mesh position={[0, 0, 0.057]}>
           <planeGeometry args={[1.73, 2.44]} />
-          <meshBasicMaterial map={faces[0]} toneMapped={false} />
+          <meshBasicMaterial
+            map={faces[0]}
+            toneMapped={false}
+            alphaTest={0.5}
+          />
         </mesh>
         <mesh position={[0, 0, -0.057]} rotation={[0, Math.PI, 0]}>
           <planeGeometry args={[1.73, 2.44]} />
-          <meshBasicMaterial map={faces[1]} toneMapped={false} />
+          <meshBasicMaterial
+            map={faces[1]}
+            toneMapped={false}
+            alphaTest={0.5}
+          />
         </mesh>
       </group>
     </>
@@ -519,8 +565,15 @@ function StudioEnvironment() {
 }
 export default function LanyardScene() {
   const [flipped, setFlipped] = useState(false),
-    [visible, setVisible] = useState(true);
+    [visible, setVisible] = useState(true),
+    [pageActive, setPageActive] = useState(true);
   const container = useRef();
+  useEffect(() => {
+    const sync = () => setPageActive(!document.hidden);
+    sync();
+    document.addEventListener("visibilitychange", sync);
+    return () => document.removeEventListener("visibilitychange", sync);
+  }, []);
   const reduced = useReducedMotion();
   useEffect(() => {
     const obs = new IntersectionObserver(
@@ -539,7 +592,9 @@ export default function LanyardScene() {
       <Canvas
         camera={{ position: [0, 0.5, 6.8], fov: 36 }}
         dpr={[1, 1.25]}
-        frameloop={visible ? (reduced ? "demand" : "always") : "never"}
+        frameloop={
+          visible && pageActive ? (reduced ? "demand" : "always") : "never"
+        }
         gl={{ antialias: true, alpha: true, powerPreference: "low-power" }}
       >
         <SceneViewport />

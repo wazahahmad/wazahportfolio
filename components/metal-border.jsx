@@ -6,6 +6,13 @@ export default function MetalBorder() {
   const [Metal, setMetal] = useState(null);
   const [visible, setVisible] = useState(false);
   const reduced = useReducedMotion();
+  const [pageActive, setPageActive] = useState(true);
+  useEffect(() => {
+    const sync = () => setPageActive(!document.hidden);
+    sync();
+    document.addEventListener("visibilitychange", sync);
+    return () => document.removeEventListener("visibilitychange", sync);
+  }, []);
   useEffect(() => {
     let alive = true;
     let requested = false;
@@ -30,7 +37,7 @@ export default function MetalBorder() {
   }, []);
   return (
     <div ref={host} className="metal-border" aria-hidden="true">
-      {Metal && visible && (
+      {Metal && visible && pageActive && !reduced && (
         <Metal
           width="100%"
           height="100%"
@@ -49,7 +56,7 @@ export default function MetalBorder() {
           offsetY={-0.1}
           speed={reduced ? 0 : 0.6}
           minPixelRatio={1}
-          maxPixelCount={180000}
+          maxPixelCount={90000}
         />
       )}
     </div>

@@ -3579,3 +3579,136 @@ body,
   opacity: 0.65;
   cursor: wait;
 }
+
+/* Compositor-only star motion, with six staggered meteor trails. */
+.star-points {
+  inset: -8%;
+  animation: star-drift 65s ease-in-out infinite alternate;
+  will-change: transform;
+}
+.stars {
+  animation: star-drift 95s ease-in-out infinite alternate-reverse;
+  will-change: transform;
+}
+.star-points i:nth-child(9n) {
+  animation: star-twinkle 5s ease-in-out infinite alternate;
+}
+.star-points i:nth-child(18n) {
+  animation-delay: -2.5s;
+}
+@keyframes star-drift {
+  from {
+    transform: translate3d(-1.2%, -1%, 0);
+  }
+  to {
+    transform: translate3d(2%, 2.5%, 0);
+  }
+}
+@keyframes star-twinkle {
+  from {
+    opacity: 0.2;
+  }
+  to {
+    opacity: 0.9;
+  }
+}
+.shooting-stars {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+.shooting-star {
+  display: block;
+  width: 170px;
+  height: 1.5px;
+  box-shadow: 0 0 9px #cbb4ff55;
+  transform: rotate(35deg);
+  animation: meteor-flight 9s linear infinite;
+  will-change: translate, opacity;
+  background: linear-gradient(90deg, transparent, #f1e7ff);
+}
+@keyframes meteor-flight {
+  0% {
+    translate: -250px -175px;
+    opacity: 0;
+  }
+  2% {
+    opacity: 0.8;
+  }
+  15% {
+    translate: 550px 385px;
+    opacity: 0;
+  }
+  100% {
+    translate: 550px 385px;
+    opacity: 0;
+  }
+}
+.page-hidden .star-points,
+.page-hidden .stars,
+.page-hidden .star-points i,
+.page-hidden .shooting-star,
+.page-hidden .marquee-track {
+  animation-play-state: paused !important;
+}
+.site-preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  background: #0f0715;
+  pointer-events: none;
+  animation: preloader-away 0.55s cubic-bezier(0.76, 0, 0.24, 1) 0.22s forwards;
+}
+.preloader-mark {
+  display: block;
+  text-align: center;
+  font-size: 36px;
+  font-weight: 750;
+  letter-spacing: -3px;
+  color: #b48aff;
+  margin-bottom: 25px;
+}
+.preloader-word {
+  display: flex;
+  gap: 14px;
+  color: #ddd;
+  font-size: 13px;
+  letter-spacing: 3px;
+}
+.preloader-word span {
+  animation: preloader-letter 0.6s ease both;
+}
+@keyframes preloader-letter {
+  from {
+    opacity: 0.1;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes preloader-away {
+  to {
+    opacity: 0;
+    transform: translate3d(0, -100%, 0);
+    visibility: hidden;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-preloader {
+    display: none;
+  }
+  .star-points,
+  .stars,
+  .star-points i,
+  .shooting-star {
+    animation: none !important;
+    will-change: auto;
+  }
+  .shooting-star {
+    display: none;
+  }
+}
